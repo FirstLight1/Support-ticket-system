@@ -1,0 +1,40 @@
+# Build output
+bin/
+obj/
+
+# .NET user secrets and local settings
+*.user
+appsettings.Development.json
+
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
+
+# JetBrains Rider
+.idea/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Publish output
+publish/
+out/
+
+# Logs
+*.log
+logs/
