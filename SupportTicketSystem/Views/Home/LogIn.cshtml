@@ -1,0 +1,30 @@
+@model SupportTicketSystem.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Log in";
+    Layout = "_Layout";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Log In</title>
+</head>
+<body>
+<div>
+    <div>
+        <form asp-action="LogIn" method="post">
+            <label asp-for="Email" name="email-lbl">Email</label>
+            <input asp-for="Email" placeholder="example@example.com" />
+            <span asp-validation-for="Email"></span>
+            
+            <label asp-for="Password">Password</label>
+            <input asp-for="Password" />
+            <span asp-validation-for="Password"></span>
+            
+        </form>
+    </div>
+</div>
+</body>
+</html>

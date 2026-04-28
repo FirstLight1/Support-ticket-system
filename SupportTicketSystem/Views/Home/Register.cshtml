@@ -1,0 +1,20 @@
+@model SupportTicketSystem.Models.RegisterViewModel
+
+@{
+    ViewBag.Title = "Register";
+    Layout = "_Layout";
+}
+
+<h2>title</h2>
+<div>
+    <form asp-action="LogIn" method="post">
+        <label asp-for="Email" name="email-lbl">Email</label>
+        <input asp-for="Email" placeholder="example@example.com" />
+        <span asp-validation-for="Email"></span>
+            
+        <label asp-for="Password">Password</label>
+        <input asp-for="Password" />
+        <span asp-validation-for="Password"></span>
+            
+    </form>
+</div>
