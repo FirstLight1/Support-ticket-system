@@ -5,9 +5,9 @@
     Layout = "_Layout";
 }
 
-<h2>title</h2>
+<h2>Register</h2>
 <div>
-    <form asp-action="LogIn" method="post">
+    <form asp-action="Register" method="post">
         <label asp-for="Email" name="email-lbl">Email</label>
         <input asp-for="Email" placeholder="example@example.com" />
         <span asp-validation-for="Email"></span>
@@ -15,6 +15,5 @@
         <label asp-for="Password">Password</label>
         <input asp-for="Password" />
         <span asp-validation-for="Password"></span>
-            
     </form>
 </div>
