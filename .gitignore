@@ -34,6 +34,7 @@ Thumbs.db
 # Publish output
 publish/
 out/
+obj/
 
 # Logs
 *.log

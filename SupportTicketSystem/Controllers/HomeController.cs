@@ -20,18 +20,10 @@ public class HomeController : Controller
     {
         return View();
     }
-    
-    public IActionResult LogIn()
-    {
-        return View();
-    }
 
-    [HttpPost]
-    public IActionResult LogIn(LoginViewModel model)
+    public IActionResult Login()
     {
-        if (!ModelState.IsValid) return View(model);
-        //Ak login valid show tickets, else return to login page
-        return RedirectToAction("Index");
+        return RedirectToAction("Index", "Auth");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

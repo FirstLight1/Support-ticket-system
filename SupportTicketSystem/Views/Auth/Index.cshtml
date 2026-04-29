@@ -14,8 +14,10 @@
 <body>
 <div>
     <div>
-        <form asp-action="LogIn" method="post">
-            <label asp-for="Email" name="email-lbl">Email</label>
+        <form asp-action="Index" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <label asp-for="Email">Email</label>
             <input asp-for="Email" placeholder="example@example.com" />
             <span asp-validation-for="Email"></span>
             

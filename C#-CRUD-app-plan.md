@@ -10,14 +10,14 @@
 
 - / -> default landing page
 - Register
-- Log in
+- Log in => /auth/ controler, vsetky endpointy co potrebuju login pojdu cez tento endpoint 
 - Log out
-- :user_id/tickets/ -> vsetky tickety od daneho usera, rozdielne ked je niekto admin, mozno by nebolo odveci spravit tomu vlastny endpoint
-- ticket -> detailne zobrazenie ticketu
-- addTicket
-- deleteTicket -> asi by stacilo len zmenit HTTP method v ticket alebo user/tickets endpointe
-- updateTicket -> same as the above
-- search
+- /auth/:user_id/tickets/ -> vsetky tickety od daneho usera, rozdielne ked je niekto admin, mozno by nebolo odveci spravit tomu vlastny endpoint
+- /auth/:user_id/ticketDetail -> detailne zobrazenie ticketu
+- /auth/addTicket
+- /auth/deleteTicket -> asi by stacilo len zmenit HTTP method v ticket alebo user/tickets endpointe
+- /auth/updateTicket -> same as the above
+- search => asi by tiez malo ist cez /auth
 
 ## Databaza
 tab 1  `users`
