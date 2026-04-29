@@ -10,6 +10,7 @@ appsettings.Development.json
 *.db
 *.db-shm
 *.db-wal
+*.sqlite
 
 # JetBrains Rider
 .idea/

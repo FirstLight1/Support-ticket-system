@@ -10,7 +10,7 @@ namespace SupportTicketSystem.Models
     /// Database entity
     /// </summary>
     [Index(nameof(Email), IsUnique = true)]
-    public class User
+    public class UserModel
     {
         //Sqlite nema uuid, preto ho vytvorime tu
         public Guid Id { get; set; } = Guid.NewGuid();

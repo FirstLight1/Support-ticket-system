@@ -39,8 +39,8 @@ public class Ticket
     public Severity Severity { get; set; }
 
     public Guid CreatedByUserId { get; set; }
-    public User CreatedBy { get; set; }
+    public UserModel CreatedBy { get; set; }
 
     public Guid? AssignedToUserId {get; set;}
-    public User? AssignedTo {get; set;}
+    public UserModel? AssignedTo {get; set;}
 } 

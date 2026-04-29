@@ -11,9 +11,16 @@
         <label asp-for="Email" name="email-lbl">Email</label>
         <input asp-for="Email" placeholder="example@example.com" />
         <span asp-validation-for="Email"></span>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
         <label asp-for="Password">Password</label>
         <input asp-for="Password" />
         <span asp-validation-for="Password"></span>
+        
+        <label asp-for="ConfirmPassword">Password</label>
+        <input asp-for="ConfirmPassword" />
+        <span asp-validation-for="ConfirmPassword"></span>
+        
+        <button type="submit" class="btn btn-success">Log in</button>
     </form>
 </div>

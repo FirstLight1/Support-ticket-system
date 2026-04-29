@@ -22,7 +22,12 @@ namespace SupportTicketSystem.Controllers;
 /// </summary>
 public static class Authenticator
 {
-    private static readonly PasswordHasher<User> _hasher = new();
+    private static readonly PasswordHasher<UserModel> _hasher = new();
+
+    public static string HashPassword(UserModel user, string password)
+    {
+        return _hasher.HashPassword(user, password);
+    }
     
     /// <summary>
     /// Finds user in database
@@ -30,7 +35,7 @@ public static class Authenticator
     /// <param name="db">databaza</param>
     /// <param name="email">email</param>
     /// <returns>Usera ak existuje inak null</returns>
-    public static User FindUser(AppDbContext db, string email)
+    public static UserModel FindUser(AppDbContext db, string email)
     {
         try
         {
@@ -50,10 +55,11 @@ public static class Authenticator
     /// <param name="user"></param>
     /// <param name="password"></param>
     /// <returns></returns>
-    public static bool AuthenticateUser(User user, string password)
+    public static bool AuthenticateUser(UserModel user, string password)
     {
+        if (user == null) return false;
         var result = _hasher.VerifyHashedPassword(user, user.PasswordHash, password);
-        if (user != null & result == PasswordVerificationResult.Success)
+        if (result == PasswordVerificationResult.Success)
         {
             return true;
         }
@@ -84,7 +90,7 @@ public class AuthController : Controller
     {
         if (!ModelState.IsValid) return View("Index",model);
 
-        User user = Authenticator.FindUser(_db, model.Email);
+        UserModel user = Authenticator.FindUser(_db, model.Email);
         
         if (Authenticator.AuthenticateUser(user, model.Password))
         {
