@@ -12,6 +12,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace SupportTicketSystem.Controllers;
 
@@ -21,24 +22,8 @@ namespace SupportTicketSystem.Controllers;
 /// </summary>
 public static class Authenticator
 {
-    /// <summary>
-    /// Metoda, ktora vytvori SHA256 hash a nasledne ho convertuje do hexadecimalneho stringu
-    /// </summary>
-    /// <param name="password">User password</param>
-    /// <returns>Hexadecimal string of users password</returns>
-    private static string HashPassword(string password)
-    {
-        var sha256Hash = SHA256.Create();
-        byte[] passwordHash = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
-        StringBuilder builder = new StringBuilder();
-        foreach (byte b in passwordHash)
-        {
-            builder.Append(b.ToString("x2")); // Convert to hexadecimal string
-        }
-        
-        return builder.ToString();
-    }
-
+    private static readonly PasswordHasher<User> _hasher = new();
+    
     /// <summary>
     /// Finds user in database
     /// </summary>
@@ -51,8 +36,9 @@ public static class Authenticator
         {
             return db.Users.FirstOrDefault(u => u.Email == email);
         }
-        catch
+        catch(Exception e)
         {
+            Console.WriteLine(e);
             return null;
         }
     }
@@ -64,12 +50,12 @@ public static class Authenticator
     /// <param name="user"></param>
     /// <param name="password"></param>
     /// <returns></returns>
-    public static bool AuthenticateUser(AppDbContext db, User user, string password)
+    public static bool AuthenticateUser(User user, string password)
     {
-        string hashedPassword = HashPassword(password);
-        if (user != null)
+        var result = _hasher.VerifyHashedPassword(user, user.PasswordHash, password);
+        if (user != null & result == PasswordVerificationResult.Success)
         {
-            return hashedPassword.Equals(user.PasswordHash);
+            return true;
         }
         return false;
     }
@@ -100,17 +86,17 @@ public class AuthController : Controller
 
         User user = Authenticator.FindUser(_db, model.Email);
         
-        if (Authenticator.AuthenticateUser(_db, user, model.Password))
+        if (Authenticator.AuthenticateUser(user, model.Password))
         {
             // A "claim" is just a key/value pair asserting something about the user. 
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new(ClaimTypes.Name, model.Email),
-                new(ClaimTypes.Role, user.IsAdmin.ToString()),
+                new(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User"),
             };
             
-            var identity = new ClaimsIdentity(claims, "Token");
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
             
             
@@ -124,7 +110,7 @@ public class AuthController : Controller
                     ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14)
                 });
             
-            return View("../Tickets/Index");
+            return RedirectToAction("Tickest");
         }
         ModelState.AddModelError(string.Empty, "Invalid login attempt");
         return View("Index", model);
@@ -138,6 +124,11 @@ public class AuthController : Controller
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        return View("../Home/Index");
+        return RedirectToAction("Index", "Home");
+    }
+
+    public IActionResult Tickest()
+    {
+        return View();
     }
 }
