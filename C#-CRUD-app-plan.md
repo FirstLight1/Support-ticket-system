@@ -32,27 +32,26 @@ tab 1  `users`
 
 tab 2 `tickets`
 
-| nazov       | datovy typ | constains              | poznamka                                                    |
-| ----------- | ---------- | ---------------------- | ----------------------------------------------------------- |
-| id          | integer    | primary key not null   |                                                             |
-| predmet     | text       | not null               |                                                             |
-| vytvorny    | text       | not null               | datum v ISO formate kedy bol ticket vytvoreny               |
-| typ         | text       | not nul                | bug report/pridanie feature/?otazka?                        |
-| ticket text | text       | not null               |                                                             |
-| zavaznost   | integer    | CHECK 0< zavaznost <10 |                                                             |
-| obrazok?    | blob       |                        |                                                             |
-| user_id     | text       | FK     not null        | cudzi kluc, ktory referencuje id v users,kto ho vytvoril    |
-| asigned     | text       | FK                     | cuzdi kluc, referencuje id v users, ale user musi byt admin |
+| nazov       | datovy typ | constains            | poznamka                                                    |
+| ----------- |------------|----------------------| ----------------------------------------------------------- |
+| id          | integer    | primary key not null |                                                             |
+| predmet     | text       | not null             |                                                             |
+| vytvorny    | text       | not null             | datum v ISO formate kedy bol ticket vytvoreny               |
+| typ         | text       | not nul              | bug report/pridanie feature/?otazka?                        |
+| ticket text | text       | not null             |                                                             |
+| zavaznost   | text       |                      |                                                             |
+| obrazok?    | blob       |                      |                                                             |
+| user_id     | text       | FK     not null      | cudzi kluc, ktory referencuje id v users,kto ho vytvoril    |
+| asigned     | text       | FK                   | cuzdi kluc, referencuje id v users, ale user musi byt admin |
 
 presnu strukturu cistime az v implementacii, ak by sme robili aj chat pri ticketoch tak bude treba este sposob ako ukladat historiu
 `DB indexy` -> FK, maybe predmet kvoli vyhladavaniu, zbytok treba premysliet
 
 ## Poznamky
-- Authorization -> simple (base64 encodnute email+heslo), alebo digest (hashnute email+heslo), posiela sa na kazdy request v `Authorization` headery, maybe session cookie
+- Authorization -> session cookies, jednoduchsie jak BASIC alebo DIGEST
 - ak by bol cas a chut teoreticky oAuth
 - hesla budu v DB ukladane len ako hash cez SHA256 algoritmus
-- zavaznost by sa mohla zmenit na priority, takze by nebola od 1-10 ale od low - critical
-- na requesty pouzivat JSON ak C# neforcuje alebo nerobi lepsie z XML
+- na requesty pouzivat JSON alebo formy, ak C# neforcuje alebo nerobi lepsie z XML 
 - kazdu DB operaciu treba dat do try/catch bloku
 
 ## Rozsirenia

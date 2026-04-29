@@ -15,9 +15,17 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace SupportTicketSystem.Controllers;
 
+/// <summary>
+/// Staticka classa na Authentikaciu pouzivatela.
+/// Pouziteie Authenticator.FindUser(AppDbContext db, string email) alebo Authenticator.AuthneticateUser(AppDbContext db, User user, string password)
+/// </summary>
 public static class Authenticator
 {
-    
+    /// <summary>
+    /// Metoda, ktora vytvori SHA256 hash a nasledne ho convertuje do hexadecimalneho stringu
+    /// </summary>
+    /// <param name="password">User password</param>
+    /// <returns>Hexadecimal string of users password</returns>
     private static string HashPassword(string password)
     {
         var sha256Hash = SHA256.Create();
@@ -31,6 +39,12 @@ public static class Authenticator
         return builder.ToString();
     }
 
+    /// <summary>
+    /// Finds user in database
+    /// </summary>
+    /// <param name="db">databaza</param>
+    /// <param name="email">email</param>
+    /// <returns>Usera ak existuje inak null</returns>
     public static User FindUser(AppDbContext db, string email)
     {
         try
@@ -43,10 +57,15 @@ public static class Authenticator
         }
     }
 
-    
+    /// <summary>
+    /// Zisti ci pre zadanie email sa zhoduuje hash hesla
+    /// </summary>
+    /// <param name="db"></param>
+    /// <param name="user"></param>
+    /// <param name="password"></param>
+    /// <returns></returns>
     public static bool AuthenticateUser(AppDbContext db, User user, string password)
     {
-
         string hashedPassword = HashPassword(password);
         if (user != null)
         {
@@ -83,6 +102,7 @@ public class AuthController : Controller
         
         if (Authenticator.AuthenticateUser(_db, user, model.Password))
         {
+            // A "claim" is just a key/value pair asserting something about the user. 
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -93,6 +113,8 @@ public class AuthController : Controller
             var identity = new ClaimsIdentity(claims, "Token");
             var principal = new ClaimsPrincipal(identity);
             
+            
+            //Toto realne vytvori session cookie
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 principal,
@@ -109,6 +131,10 @@ public class AuthController : Controller
     }
 
     //Untested
+    /// <summary>
+    /// Zrusi Authcokkie pre pouzivatela
+    /// </summary>
+    /// <returns></returns>
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
