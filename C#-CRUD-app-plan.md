@@ -12,12 +12,12 @@
 - Register
 - Log in => /auth/ controler, vsetky endpointy co potrebuju login pojdu cez tento endpoint 
 - Log out
-- /auth/:user_id/tickets/ -> vsetky tickety od daneho usera, rozdielne ked je niekto admin, mozno by nebolo odveci spravit tomu vlastny endpoint
-- /auth/:user_id/ticketDetail -> detailne zobrazenie ticketu
-- /auth/addTicket
-- /auth/deleteTicket -> asi by stacilo len zmenit HTTP method v ticket alebo user/tickets endpointe
-- /auth/updateTicket -> same as the above
-- search => asi by tiez malo ist cez /auth
+- /tickets/user_id -> vsetky tickety od daneho usera, rozdielne ked je niekto admin, mozno by nebolo odveci spravit tomu vlastny endpoint. asi nemusí byť user_id keďže to uuid nebude vyzerať pekne
+- /ticketDetail/ticket_id -> detailne zobrazenie ticketu
+- addTicket
+- /deleteTicket -> asi by stacilo len zmenit HTTP method v ticket alebo user/tickets endpointe
+- /updateTicket -> same as the above
+- search
 
 ## Databaza
 tab 1  `users`
@@ -50,8 +50,8 @@ presnu strukturu cistime az v implementacii, ak by sme robili aj chat pri ticket
 ## Poznamky
 - Authorization -> session cookies, jednoduchsie jak BASIC alebo DIGEST
 - ak by bol cas a chut teoreticky oAuth
-- hesla budu v DB ukladane len ako hash cez SHA256 algoritmus
-- na requesty pouzivat JSON alebo formy, ak C# neforcuje alebo nerobi lepsie z XML 
+- hesla budu v DB ukladane len ako hash cez SHA256 algoritmus + salt (C# má na to built in classu a metodu)
+- na requesty pouzivat JSON alebo forms, ak C# neforcuje alebo nerobi lepsie z XML 
 - kazdu DB operaciu treba dat do try/catch bloku
 
 ## Rozsirenia
