@@ -24,8 +24,8 @@ namespace SupportTicketSystem.Models
 
         public bool IsAdmin { get; set; }
         
-        public ICollection<Ticket> CreatedTickets { get; set; }
-        public ICollection<Ticket> AssignedTickets { get; set; }
+        public ICollection<Tickets> CreatedTickets { get; set; }
+        public ICollection<Tickets> AssignedTickets { get; set; }
     }
 
     /// <summary>

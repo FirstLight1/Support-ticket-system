@@ -1,0 +1,31 @@
+﻿@model Tickets
+
+
+@{
+    ViewBag.Title = "Create Ticket";
+    Layout = "_Layout";
+}
+
+<h2>Create Ticket</h2>
+<div>
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <label asp-for="Predmet"></label>
+        <input asp-for="Predmet"/>
+        <span asp-validation-for="Predmet"></span>
+
+        <label asp-for="TicketType"></label>
+        <select asp-for="TicketType" asp-items="Html.GetEnumSelectList<TicketTypeEnum>()"></select>
+
+        <label asp-for="TicketText"></label>
+        <input asp-for="TicketText"/>
+        <span asp-validation-for="TicketType"></span>
+
+        <label asp-for="Severity"></label>
+        <select asp-for="Severity" asp-items="Html.GetEnumSelectList<SeverityEnum>()"></select>
+
+        <button type="submit" class="btn btn-success">Vytvorit</button>
+    </form>
+    
+</div>
+

@@ -19,11 +19,8 @@
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Views\Tickets\Index.cshtml" />
       <_ContentIncludedByDefault Remove="Views\Tickets\Tickets.cshtml" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <AdditionalFiles Include="Views\Auth\Tickets\Index.cshtml" />
-      <AdditionalFiles Include="Views\Auth\Tickets\Tickets.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Auth\Tickets\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Auth\Tickets\Tickets.cshtml" />
     </ItemGroup>
     
 

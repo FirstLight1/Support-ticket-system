@@ -1,0 +1,26 @@
+@model List<Tickets>
+@{
+    ViewData["Title"] = "Tickets";
+    Layout = "_Layout";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>title</title>
+</head>
+<body>
+<div>
+    @foreach (var ticket in Model)
+    {
+        <div>
+            <p>@ticket.Predmet</p>
+            <p>@ticket.TicketType</p>
+            <p>@ticket.Severity</p>
+            <p>@ticket.CreatedByUserId</p>
+        </div>
+    }
+</div>
+</body>
+</html>

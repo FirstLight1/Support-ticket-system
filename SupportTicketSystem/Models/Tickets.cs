@@ -1,17 +1,18 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace SupportTicketSystem.Models;
-public enum TicketType
+public enum TicketTypeEnum
 {
     BugReport,
     Feature,
     Question
 }
 
-public enum Severity
+public enum SeverityEnum
 {
     Low,
     Medium,
@@ -19,8 +20,9 @@ public enum Severity
     Critical
 }
     
-public class Ticket
+public class Tickets
 {
+    [Key]
     public int TicketId { get; set; }
         
     [Required]
@@ -30,13 +32,13 @@ public class Ticket
     public string DatumVytvorenia {get; set;} =  DateTime.UtcNow.ToString("o");
         
     [Required]
-    public TicketType TicketType { get; set; }
+    public TicketTypeEnum TicketType { get; set; }
         
     [Required]
     public string TicketText { get; set; }
         
     [Required]
-    public Severity Severity { get; set; }
+    public SeverityEnum Severity { get; set; }
 
     public Guid CreatedByUserId { get; set; }
     public UserModel CreatedBy { get; set; }

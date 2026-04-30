@@ -116,7 +116,7 @@ public class AuthController : Controller
                     ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14)
                 });
             
-            return RedirectToAction("Tickest");
+            return RedirectToAction("Index", "Tickets");
         }
         ModelState.AddModelError(string.Empty, "Invalid login attempt");
         return View("Index", model);
@@ -131,10 +131,5 @@ public class AuthController : Controller
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction("Index", "Home");
-    }
-
-    public IActionResult Tickest()
-    {
-        return View();
     }
 }
