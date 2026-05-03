@@ -31,7 +31,8 @@ public class TicketsController : Controller
     [Authorize]
     public IActionResult Index()
     {
-        var tickets = _db.Tickets.ToList();
+        var userId = User.GetUserId();
+        var tickets = _db.Tickets.Where(t => t.CreatedByUserId == userId).ToList();
         return View(tickets);
     }
 
@@ -66,6 +67,56 @@ public class TicketsController : Controller
         {
             Console.WriteLine(e);
         }
+        return RedirectToAction(nameof(Index));
+    }
+
+    public IActionResult Edit(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+        
+        var ticket = _db.Tickets.Find(id);
+        if (ticket == null)
+        { 
+            return NotFound();
+        }
+        return View(ticket);
+    }
+
+    public IActionResult Details(int id)
+    {
+        var ticket = _db.Tickets.Find(id);
+        if (ticket == null)
+        {
+            return NotFound();
+        }
+        return View(ticket);
+    }
+
+    public async Task<IActionResult> Delete(int ticketId)
+    {
+        Tickets? ticket = _db.Tickets.Find(ticketId);
+        
+        if (ticket != null)
+        {
+            try
+            {
+                _db.Tickets.Remove(ticket);
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+        else
+        {
+            ModelState.AddModelError(string.Empty, "Ticket not found");
+        }
+        
         return RedirectToAction(nameof(Index));
     }
     

@@ -1,0 +1,37 @@
+﻿@model Tickets
+
+@{
+    Layout = "_Layout";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Ticket Details</title>
+</head>
+<body>
+<div>
+    
+    
+    <div>
+        <h3>Predmet</h3>
+        <p>@Model.Predmet</p>
+        <h3>Datum vytvorenia</h3>
+        <p>@DateTimeOffset.Parse(@Model.DatumVytvorenia).ToString("dd.MM.yyyy HH:mm")</p>
+    </div>
+    <div>
+        <h4>Typ ticketu</h4>
+        <p>@Model.TicketText</p>
+        <h4>Závažnosť</h4>
+        <p>@Model.Severity</p>
+        <h4>Status</h4>
+        <p>@Model.Status</p>
+    </div>
+    <div>
+        <h4>Text</h4>
+        <p>@Model.TicketText</p>
+    </div>
+</div>
+</body>
+</html>

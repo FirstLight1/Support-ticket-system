@@ -12,13 +12,19 @@
 </head>
 <body>
 <div>
+    <button class="btn"><a class="text-decoration-none text-black" asp-action="Create">Vytvorit ticket</a></button>
+</div>
+<div>
     @foreach (var ticket in Model)
     {
         <div>
             <p>@ticket.Predmet</p>
             <p>@ticket.TicketType</p>
-            <p>@ticket.Severity</p>
+            <p class="@ticket.Severity">@ticket.Severity</p>
             <p>@ticket.CreatedByUserId</p>
+            <button class="btn"><a class="text-decoration-none" asp-action="Details" asp-route-id="@ticket.TicketId">Details</a></button>
+            <button class="btn"><a class="text-decoration-none" asp-action="Edit" asp-rout-id="@ticket.TicketId">Edit</a></button>
+            <button class="btn"><a class="text-decoration-none" asp-action="Delete" asp-route-id="@ticket.TicketId">Delete</a></button>
         </div>
     }
 </div>
