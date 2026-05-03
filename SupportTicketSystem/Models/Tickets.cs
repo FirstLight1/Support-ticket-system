@@ -19,6 +19,13 @@ public enum SeverityEnum
     High,
     Critical
 }
+
+public enum TicketStatusEnum
+{
+    Unassigned,
+    Inprogress,
+    Completed
+}
     
 public class Tickets
 {
@@ -40,6 +47,8 @@ public class Tickets
     [Required]
     public SeverityEnum Severity { get; set; }
 
+    public TicketStatusEnum Status { get; set; }
+    
     public Guid CreatedByUserId { get; set; }
     public UserModel CreatedBy { get; set; }
 

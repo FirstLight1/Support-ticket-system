@@ -17,7 +17,7 @@ namespace SupportTicketSystem.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.7");
 
-            modelBuilder.Entity("SupportTicketSystem.Models.Ticket", b =>
+            modelBuilder.Entity("SupportTicketSystem.Models.Tickets", b =>
                 {
                     b.Property<int>("TicketId")
                         .ValueGeneratedOnAdd()
@@ -41,6 +41,9 @@ namespace SupportTicketSystem.Migrations
                     b.Property<int>("Severity")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("TicketText")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -57,7 +60,7 @@ namespace SupportTicketSystem.Migrations
                     b.ToTable("Tickets");
                 });
 
-            modelBuilder.Entity("SupportTicketSystem.Models.User", b =>
+            modelBuilder.Entity("SupportTicketSystem.Models.UserModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -76,17 +79,20 @@ namespace SupportTicketSystem.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("SupportTicketSystem.Models.Ticket", b =>
+            modelBuilder.Entity("SupportTicketSystem.Models.Tickets", b =>
                 {
-                    b.HasOne("SupportTicketSystem.Models.User", "AssignedTo")
+                    b.HasOne("SupportTicketSystem.Models.UserModel", "AssignedTo")
                         .WithMany("AssignedTickets")
                         .HasForeignKey("AssignedToUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("SupportTicketSystem.Models.User", "CreatedBy")
+                    b.HasOne("SupportTicketSystem.Models.UserModel", "CreatedBy")
                         .WithMany("CreatedTickets")
                         .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -97,7 +103,7 @@ namespace SupportTicketSystem.Migrations
                     b.Navigation("CreatedBy");
                 });
 
-            modelBuilder.Entity("SupportTicketSystem.Models.User", b =>
+            modelBuilder.Entity("SupportTicketSystem.Models.UserModel", b =>
                 {
                     b.Navigation("AssignedTickets");
 
