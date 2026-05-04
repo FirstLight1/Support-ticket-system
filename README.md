@@ -35,11 +35,18 @@ cd SupportTicketSystem
 dotnet restore
 ```
 
+alebo
+
+```bash
+dotnet tool install --global dotnet-ef
+```
+
 ### 3. Set up the database
 
 The app uses SQLite with a file called `app.db` in the project root. Apply migrations to create it:
 
 ```bash
+cd .\SupportTicketSystem\
 dotnet ef database update
 ```
 
