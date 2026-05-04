@@ -80,20 +80,39 @@ public class TicketsController : Controller
         }
         
         var ticket = _db.Tickets.Find(id);
-        /*if (ticket == null)
+
+        if (ticket == null)
         { 
             return NotFound();
-        }*/
-        return View(ticket);
+        }
+        EditTicketModel editTicket = new EditTicketModel
+        {
+            TicketId =  ticket.TicketId,
+            Predmet =  ticket.Predmet,
+            Severity = ticket.Severity,
+            TicketText =  ticket.TicketText,
+            TicketType =  ticket.TicketType,
+        };
+        
+        return View(editTicket);
     }
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Edit(Tickets ticket)
+    public async Task<IActionResult> Edit(EditTicketModel ticket, int id)
     {
-        _db.Tickets.Update(ticket);
-        await _db.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
+        var ticketToEdit = await _db.Tickets.FindAsync(id);
+        if (ticketToEdit != null)
+        {
+            ticket.TicketId = ticketToEdit.TicketId;
+            _db.Entry(ticketToEdit).CurrentValues.SetValues(ticket);
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        
+        ModelState.AddModelError(string.Empty, "Ticket not found");
+        return View(ticket);
+
     }
 
     public IActionResult Details(int id)
@@ -111,20 +130,19 @@ public class TicketsController : Controller
     public async Task<IActionResult> Delete(int ticketId)
     {
         Tickets? ticket = await _db.Tickets.FindAsync(ticketId);
-        Console.WriteLine("TicketId: " + ticketId);
-        Console.WriteLine(ticket);
-        if (ticket != null || true)
+        
+        if (ticket != null)
         {
-            //try
-            //{
+            try
+            {
                 _db.Tickets.Remove(ticket);
                 await _db.SaveChangesAsync();
-            /*}
+            }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 throw;
-            }*/
+            }
         }
         else
         {

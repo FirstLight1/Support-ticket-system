@@ -54,4 +54,13 @@ public class Tickets
 
     public Guid? AssignedToUserId {get; set;}
     public UserModel? AssignedTo {get; set;}
-} 
+}
+
+public class EditTicketModel
+{
+    public int TicketId { get; set; }
+    public string Predmet { get; set; }
+    public TicketTypeEnum TicketType { get; set; }
+    public string TicketText { get; set; }
+    public SeverityEnum Severity { get; set; }
+}

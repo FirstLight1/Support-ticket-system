@@ -1,4 +1,4 @@
-@model  Tickets
+@model EditTicketModel
 
 @{
     Layout = "_Layout";
@@ -31,7 +31,7 @@
             <select asp-for="Severity" asp-items="Html.GetEnumSelectList<SeverityEnum>()"></select>
             
             <div>
-                <button type="submit" class="btn btn-success">Ulozit</button>
+                <button type="submit" class="btn btn-success" asp-route-id="@Model.TicketId">Ulozit</button>
                 <button asp-action="Index" class="btn btn-secondary">Cancel</button>
             </div>
         </form>

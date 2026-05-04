@@ -25,9 +25,10 @@
             <button class="btn"><a class="text-decoration-none" asp-action="Details" asp-route-id="@ticket.TicketId">Details</a></button>
             <button class="btn"><a class="text-decoration-none" asp-action="Edit" asp-route-id="@ticket.TicketId">Edit</a></button>
             <form asp-action="Delete" asp-route-ticketId="@ticket.TicketId" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <button type="submit" class="btn">Delete</button>
-            </form>        
-            </div>
+            </form>
+        </div>
     }
 </div>
 </body>
