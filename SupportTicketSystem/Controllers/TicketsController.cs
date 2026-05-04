@@ -70,6 +70,8 @@ public class TicketsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpGet]
+    [Authorize]
     public IActionResult Edit(int? id)
     {
         if (id == null)
@@ -78,11 +80,20 @@ public class TicketsController : Controller
         }
         
         var ticket = _db.Tickets.Find(id);
-        if (ticket == null)
+        /*if (ticket == null)
         { 
             return NotFound();
-        }
+        }*/
         return View(ticket);
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> Edit(Tickets ticket)
+    {
+        _db.Tickets.Update(ticket);
+        await _db.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
     }
 
     public IActionResult Details(int id)
@@ -94,23 +105,26 @@ public class TicketsController : Controller
         }
         return View(ticket);
     }
-
+    
+    [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Delete(int ticketId)
     {
-        Tickets? ticket = _db.Tickets.Find(ticketId);
-        
-        if (ticket != null)
+        Tickets? ticket = await _db.Tickets.FindAsync(ticketId);
+        Console.WriteLine("TicketId: " + ticketId);
+        Console.WriteLine(ticket);
+        if (ticket != null || true)
         {
-            try
-            {
+            //try
+            //{
                 _db.Tickets.Remove(ticket);
                 await _db.SaveChangesAsync();
-            }
+            /*}
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 throw;
-            }
+            }*/
         }
         else
         {
