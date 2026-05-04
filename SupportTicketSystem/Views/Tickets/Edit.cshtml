@@ -1,0 +1,41 @@
+@model EditTicketModel
+
+@{
+    Layout = "_Layout";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Edit ticket</title>
+</head>
+<body>
+<div>
+<h2>Create Ticket</h2>
+    <div>
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <label asp-for="Predmet"></label>
+            <input asp-for="Predmet" placeholder="@Model.Predmet"/>
+            <span asp-validation-for="Predmet"></span>
+
+            <label asp-for="TicketType"></label>
+            <select asp-for="TicketType" asp-items="Html.GetEnumSelectList<TicketTypeEnum>()"></select>
+
+            <label asp-for="TicketText"></label>
+            <input asp-for="TicketText" placeholder="@Model.TicketText"/>
+            <span asp-validation-for="TicketType"></span>
+
+            <label asp-for="Severity"></label>
+            <select asp-for="Severity" asp-items="Html.GetEnumSelectList<SeverityEnum>()"></select>
+            
+            <div>
+                <button type="submit" class="btn btn-success" asp-route-id="@Model.TicketId">Ulozit</button>
+                <button asp-action="Index" class="btn btn-secondary">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

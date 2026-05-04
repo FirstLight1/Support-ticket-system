@@ -70,6 +70,8 @@ public class TicketsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpGet]
+    [Authorize]
     public IActionResult Edit(int? id)
     {
         if (id == null)
@@ -78,11 +80,39 @@ public class TicketsController : Controller
         }
         
         var ticket = _db.Tickets.Find(id);
+
         if (ticket == null)
         { 
             return NotFound();
         }
+        EditTicketModel editTicket = new EditTicketModel
+        {
+            TicketId =  ticket.TicketId,
+            Predmet =  ticket.Predmet,
+            Severity = ticket.Severity,
+            TicketText =  ticket.TicketText,
+            TicketType =  ticket.TicketType,
+        };
+        
+        return View(editTicket);
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> Edit(EditTicketModel ticket, int id)
+    {
+        var ticketToEdit = await _db.Tickets.FindAsync(id);
+        if (ticketToEdit != null)
+        {
+            ticket.TicketId = ticketToEdit.TicketId;
+            _db.Entry(ticketToEdit).CurrentValues.SetValues(ticket);
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        
+        ModelState.AddModelError(string.Empty, "Ticket not found");
         return View(ticket);
+
     }
 
     public IActionResult Details(int id)
@@ -94,10 +124,12 @@ public class TicketsController : Controller
         }
         return View(ticket);
     }
-
+    
+    [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Delete(int ticketId)
     {
-        Tickets? ticket = _db.Tickets.Find(ticketId);
+        Tickets? ticket = await _db.Tickets.FindAsync(ticketId);
         
         if (ticket != null)
         {
