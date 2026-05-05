@@ -5,29 +5,19 @@
     Layout = "_Layout";
 }
 
-<!DOCTYPE html>
-
-<html>
-<head>
-    <title>Log In</title>
-</head>
-<body>
+<h2>Log In</h2>
 <div>
-    <div>
-        <form asp-action="Index" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <form asp-action="Index" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <label asp-for="Email">Email</label>
-            <input asp-for="Email" placeholder="example@example.com" />
-            <span asp-validation-for="Email"></span>
-            
-            <label asp-for="Password">Password</label>
-            <input asp-for="Password" />
-            <span asp-validation-for="Password"></span>
-            
-            <button type="submit" class="btn btn-success">Log in</button>
-        </form>
-    </div>
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" placeholder="example@example.com" class="form-control mb-2" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+
+        <label asp-for="Password">Password</label>
+        <input asp-for="Password" class="form-control mb-2" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+
+        <button type="submit" class="btn btn-success mt-2">Log in</button>
+    </form>
 </div>
-</body>
-</html>
