@@ -1,37 +1,50 @@
 ﻿@model Tickets
-
 @{
+    ViewData["Title"] = "Ticket detail";
     Layout = "_Layout";
 }
 
-<!DOCTYPE html>
+<div class="mb-4">
+    <a class="btn btn-outline-secondary btn-sm" asp-action="Index">← Back</a>
+</div>
 
-<html>
-<head>
-    <title>Ticket Details</title>
-</head>
-<body>
-<div>
-    
-    
-    <div>
-        <h3>Predmet</h3>
-        <p>@Model.Predmet</p>
-        <h3>Datum vytvorenia</h3>
-        <p>@DateTimeOffset.Parse(@Model.DatumVytvorenia).ToString("dd.MM.yyyy HH:mm")</p>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">@Model.Predmet</h4>
+        @{
+            var badgeClass = Model.Severity switch
+            {
+                SeverityEnum.Critical => "bg-danger",
+                SeverityEnum.High => "bg-warning text-dark",
+                SeverityEnum.Medium => "bg-info text-dark",
+                _ => "bg-secondary"
+            };
+        }
+        <span class="badge @badgeClass">@Model.Severity</span>
     </div>
-    <div>
-        <h4>Typ ticketu</h4>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <strong>Ticket type</strong>
+                <p>@Model.TicketType</p>
+            </div>
+            <div class="col-md-4">
+                <strong>Status</strong>
+                <p>@Model.Status</p>
+            </div>
+            <div class="col-md-4">
+                <strong>Date</strong>
+                <p>@DateTimeOffset.Parse(Model.DatumVytvorenia).ToString("dd.MM.yyyy HH:mm")</p>
+            </div>
+        </div>
+        <hr />
+        <strong>Description</strong>
         <p>@Model.TicketText</p>
-        <h4>Závažnosť</h4>
-        <p>@Model.Severity</p>
-        <h4>Status</h4>
-        <p>@Model.Status</p>
     </div>
-    <div>
-        <h4>Text</h4>
-        <p>@Model.TicketText</p>
+    <div class="card-footer d-flex gap-2">
+        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.TicketId">Edit</a>
+        <form asp-action="Delete" asp-route-ticketId="@Model.TicketId" method="post">
+            <button type="submit" class="btn btn-outline-danger">Delete</button>
+        </form>
     </div>
 </div>
-</body>
-</html>

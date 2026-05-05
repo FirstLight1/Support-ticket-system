@@ -4,32 +4,53 @@
     Layout = "_Layout";
 }
 
-<!DOCTYPE html>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>My tickets</h2>
+    <a class="btn btn-success" asp-action="Create">+ Create ticket</a>
+</div>
 
-<html>
-<head>
-    <title>title</title>
-</head>
-<body>
-<div>
-    <button class="btn"><a class="text-decoration-none text-black" asp-action="Create">Vytvorit ticket</a></button>
-</div>
-<div>
-    @foreach (var ticket in Model)
-    {
-        <div>
-            <p>@ticket.Predmet</p>
-            <p>@ticket.TicketType</p>
-            <p class="@ticket.Severity">@ticket.Severity</p>
-            <p>@ticket.CreatedByUserId</p>
-            <button class="btn"><a class="text-decoration-none" asp-action="Details" asp-route-id="@ticket.TicketId">Details</a></button>
-            <button class="btn"><a class="text-decoration-none" asp-action="Edit" asp-route-id="@ticket.TicketId">Edit</a></button>
-            <form asp-action="Delete" asp-route-ticketId="@ticket.TicketId" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <button type="submit" class="btn">Delete</button>
-            </form>
-        </div>
-    }
-</div>
-</body>
-</html>
+@if (!Model.Any())
+{
+    <p class="text-muted">You have no tickets.</p>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Subject</th>
+                <th>Type</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var ticket in Model)
+        {
+            var badgeClass = ticket.Severity switch
+            {
+                SeverityEnum.Critical => "bg-danger",
+                SeverityEnum.High     => "bg-warning text-dark",
+                SeverityEnum.Medium   => "bg-info text-dark",
+                _                     => "bg-secondary"
+            };
+            <tr>
+                <td>@ticket.TicketId</td>
+                <td>@ticket.Predmet</td>
+                <td>@ticket.TicketType</td>
+                <td><span class="badge @badgeClass">@ticket.Severity</span></td>
+                <td>@ticket.Status</td>
+                <td class="d-flex gap-2">
+                    <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@ticket.TicketId">Detail</a>
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@ticket.TicketId">Edit</a>
+                    <form asp-action="Delete" asp-route-ticketId="@ticket.TicketId" method="post">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

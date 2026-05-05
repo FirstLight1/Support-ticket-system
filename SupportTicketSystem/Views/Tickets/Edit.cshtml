@@ -1,41 +1,46 @@
 @model EditTicketModel
-
 @{
+    ViewData["Title"] = "Edit ticket";
     Layout = "_Layout";
 }
 
-<!DOCTYPE html>
+<div class="mb-4">
+    <a class="btn btn-outline-secondary btn-sm" asp-action="Index">← Back</a>
+</div>
 
-<html>
-<head>
-    <title>Edit ticket</title>
-</head>
-<body>
-<div>
-<h2>Create Ticket</h2>
-    <div>
+<h2 class="mb-4">Edit ticket</h2>
+
+<div class="card">
+    <div class="card-body">
         <form asp-action="Edit" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <label asp-for="Predmet"></label>
-            <input asp-for="Predmet" placeholder="@Model.Predmet"/>
-            <span asp-validation-for="Predmet"></span>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <label asp-for="TicketType"></label>
-            <select asp-for="TicketType" asp-items="Html.GetEnumSelectList<TicketTypeEnum>()"></select>
+            <div class="mb-3">
+                <label asp-for="Predmet" class="form-label">Subject</label>
+                <input asp-for="Predmet" class="form-control" />
+                <span asp-validation-for="Predmet" class="text-danger"></span>
+            </div>
 
-            <label asp-for="TicketText"></label>
-            <input asp-for="TicketText" placeholder="@Model.TicketText"/>
-            <span asp-validation-for="TicketType"></span>
+            <div class="mb-3">
+                <label asp-for="TicketType" class="form-label">Ticket Type</label>
+                <select asp-for="TicketType" asp-items="Html.GetEnumSelectList<TicketTypeEnum>()" class="form-select"></select>
+            </div>
 
-            <label asp-for="Severity"></label>
-            <select asp-for="Severity" asp-items="Html.GetEnumSelectList<SeverityEnum>()"></select>
-            
-            <div>
-                <button type="submit" class="btn btn-success" asp-route-id="@Model.TicketId">Ulozit</button>
-                <button asp-action="Index" class="btn btn-secondary">Cancel</button>
+            <div class="mb-3">
+                <label asp-for="TicketText" class="form-label">Ticket Text</label>
+                <textarea asp-for="TicketText" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="TicketText" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Severity" class="form-label"></label>
+                <select asp-for="Severity" asp-items="Html.GetEnumSelectList<SeverityEnum>()" class="form-select"></select>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success" asp-route-id="@Model.TicketId">Save</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </form>
     </div>
 </div>
-</body>
-</html>
