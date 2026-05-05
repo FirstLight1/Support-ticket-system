@@ -1,0 +1,65 @@
+﻿@model SupportTicketSystem.Models.AdminIndexViewModel
+@{
+    ViewData["Title"] = "Admin – Ticket Queue";
+}
+
+<h2 class="mb-4">Ticket Queue</h2>
+
+@if (!Model.Tickets.Any())
+{
+    <p class="text-muted">Žiadne otvorené tickety.</p>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Predmet</th>
+                <th>Typ</th>
+                <th>Závažnosť</th>
+                <th>Status</th>
+                <th>Vytvoril</th>
+                <th>Priradený</th>
+                <th>Priradiť</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticket in Model.Tickets)
+            {
+                <tr>
+                    <td>@ticket.TicketId</td>
+                    <td>@ticket.Predmet</td>
+                    <td>@ticket.TicketType</td>
+                    <td>
+                        @{
+                            var badgeClass = ticket.Severity switch
+                            {
+                                SupportTicketSystem.Models.SeverityEnum.Critical => "bg-danger",
+                                SupportTicketSystem.Models.SeverityEnum.High => "bg-warning text-dark",
+                                SupportTicketSystem.Models.SeverityEnum.Medium => "bg-info text-dark",
+                                _ => "bg-secondary"
+                            };
+                        }
+                        <span class="badge @badgeClass">@ticket.Severity</span>
+                    </td>
+                    <td>@ticket.Status</td>
+                    <td>@ticket.CreatedBy?.Email</td>
+                    <td>@(ticket.AssignedTo?.Email ?? "—")</td>
+                    <td>
+                        <form asp-action="Assign" asp-controller="Admin" method="post" class="d-flex gap-2">
+                            <input type="hidden" name="ticketId" value="@ticket.TicketId" />
+                            <select name="assignedToUserId" class="form-select form-select-sm">
+                                @foreach (var admin in Model.Admins)
+                                {
+                                    <option value="@admin.Id">@admin.Email</option>
+                                }
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary">Priradiť</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
