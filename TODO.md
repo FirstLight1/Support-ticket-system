@@ -2,7 +2,7 @@
 
 [x] Pridat Edit view pre tickety;
 
-[] Admin controller + Views => Ked logne niekto kto ma is_admin = True, tak mu zobrazi admin view, kde bude mat vsetky tickety, ktore su bud Unassigned alebo Inprogress, Admin bude mat moznost priradit ticket bud sebe alebo inemu Adminovy; 
+[x] Admin controller + Views => Ked logne niekto kto ma is_admin = True, tak mu zobrazi admin view, kde bude mat vsetky tickety, ktore su bud Unassigned alebo Inprogress, Admin bude mat moznost priradit ticket bud sebe alebo inemu Adminovy; 
 
 [] Filtrovanie v Admin Views => Moznost zobrazit napr len tickety co su Unassigned alebo zoradit podla Severity;
 
