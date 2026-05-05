@@ -39,8 +39,13 @@ public class HomeController : Controller
     {
 
         if (!ModelState.IsValid) return View("Register",model);
-    
-        
+
+        if (Authenticator.FindUser(_db, model.Email) != null)
+        {
+            ModelState.AddModelError(string.Empty, "User with this email already exists");
+            return View("Register", model);
+        }
+
         UserModel User = new UserModel
         {
             Id = Guid.NewGuid(),
@@ -52,14 +57,17 @@ public class HomeController : Controller
         try
         {
             _db.Add(User);
+            await _db.SaveChangesAsync();
+            return View("Index", "Auth");
         }
         catch (DbUpdateException e)
         {
-            ModelState.AddModelError(string.Empty, "User with this email already exists");
+            Console.WriteLine(e);
+            ModelState.AddModelError(string.Empty, "Registration failed, please try again");
+            return View("Register", model);
         }
         
-        await _db.SaveChangesAsync();
-        return View("Index");
+        
     }
 
     public IActionResult Login()
