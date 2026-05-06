@@ -38,7 +38,7 @@ public class HomeController : Controller
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
 
-        if (!ModelState.IsValid) return View("Register",model);
+        if (!ModelState.IsValid) return View("Register", model);
 
         if (Authenticator.FindUser(_db, model.Email) != null)
         {
@@ -50,15 +50,17 @@ public class HomeController : Controller
         {
             Id = Guid.NewGuid(),
             Email =  model.Email,
-            PasswordHash = Authenticator.HashPassword(null, model.Password),
+            PasswordHash = string.Empty,
             IsAdmin = false,
         };
+        User.PasswordHash = Authenticator.HashPassword(User, model.Password);
 
         try
         {
             _db.Add(User);
             await _db.SaveChangesAsync();
-            return View("Index", "Auth");
+            await Authenticator.SignIn(HttpContext, User);
+            return RedirectToAction("Index", "Home");
         }
         catch (DbUpdateException e)
         {
@@ -66,14 +68,6 @@ public class HomeController : Controller
             ModelState.AddModelError(string.Empty, "Registration failed, please try again");
             return View("Register", model);
         }
-        
-        
-    }
-
-    public IActionResult Login()
-    {
-        return RedirectToAction("Index", "Auth");
-        
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

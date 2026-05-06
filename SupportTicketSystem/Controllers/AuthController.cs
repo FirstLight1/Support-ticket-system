@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 
 namespace SupportTicketSystem.Controllers;
 
@@ -66,6 +67,28 @@ public static class Authenticator
         return false;
     }
 
+    public static async Task SignIn(HttpContext httpContext, UserModel user)
+    {
+        // A "claim" is just a key/value pair asserting something about the user. 
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Name, user.Email),
+            new(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User")
+        };
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        //Toto realne vytvori session cookie
+        await httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+            principal, new AuthenticationProperties
+            {
+                IsPersistent = true,        // survives browser close
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14)
+            });
+    }
+
 }
 
 public class AuthController : Controller
@@ -94,28 +117,7 @@ public class AuthController : Controller
         
         if (Authenticator.AuthenticateUser(user, model.Password))
         {
-            // A "claim" is just a key/value pair asserting something about the user. 
-            var claims = new List<Claim>
-            {
-                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Name, model.Email),
-                new(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User"),
-            };
-            
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
-            
-            
-            //Toto realne vytvori session cookie
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                principal,
-                new AuthenticationProperties
-                {
-                    IsPersistent = true,        // survives browser close
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14)
-                });
-            
+            await Authenticator.SignIn(HttpContext, user);
             return RedirectToAction("Index", "Tickets");
         }
         ModelState.AddModelError(string.Empty, "Invalid login attempt");
