@@ -4,9 +4,8 @@
 
 [x] Admin controller + Views => Ked logne niekto kto ma is_admin = True, tak mu zobrazi admin view, kde bude mat vsetky tickety, ktore su bud Unassigned alebo Inprogress, Admin bude mat moznost priradit ticket bud sebe alebo inemu Adminovy; 
 
-[] Filtrovanie v Admin Views => Moznost zobrazit napr len tickety co su Unassigned alebo zoradit podla Severity;
+[] Možnosť zoradiť tickety podľa Severity/Type/date-created pre adminov,aj pre userov
 
-[] Podobny filter aj pre userov => tam by asi stacilo len rozlysovanie na zaklade stavu ticketu a/alebo severity;
 
 [] Moznost pridat obrazok k ticketu;
 
