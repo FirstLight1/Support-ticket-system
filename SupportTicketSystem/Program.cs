@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SupportTicketSystem.data;
+using SupportTicketSystem.Utils;
 
 namespace SupportTicketSystem;
 
@@ -37,6 +38,16 @@ public class Program
             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         var app = builder.Build();
+
+        if (args.Contains("--seed"))
+        {
+            using var seedScope = app.Services.CreateScope();
+            var db = seedScope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Database.Migrate();
+            PopulateDb.SeedDb(db);
+            Console.WriteLine("Database seeded.");
+            return;
+        }
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
