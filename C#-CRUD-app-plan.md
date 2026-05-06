@@ -33,14 +33,14 @@ tab 1  `users`
 tab 2 `tickets`
 
 | nazov       | datovy typ | constains            | poznamka                                                    |
-| ----------- |------------|----------------------| ----------------------------------------------------------- |
+| ----------- |------------|----------------------|-------------------------------------------------------------|
 | id          | integer    | primary key not null |                                                             |
 | predmet     | text       | not null             |                                                             |
 | vytvorny    | text       | not null             | datum v ISO formate kedy bol ticket vytvoreny               |
 | typ         | text       | not nul              | bug report/pridanie feature/?otazka?                        |
 | ticket text | text       | not null             |                                                             |
 | zavaznost   | text       |                      |                                                             |
-| obrazok?    | blob       |                      |                                                             |
+| obrazok?    | text       |                      | cesta k obrazku, ktory bude ulozeny vo foldery Images/      |
 | user_id     | text       | FK     not null      | cudzi kluc, ktory referencuje id v users,kto ho vytvoril    |
 | asigned     | text       | FK                   | cuzdi kluc, referencuje id v users, ale user musi byt admin |
 

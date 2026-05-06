@@ -52,6 +52,12 @@ dotnet ef database update
 
 This runs all migrations under `Migrations/` and creates `app.db`.
 
+To populate database with fake users and tickets use. You need to be inside the actuall project folder not the root directory
+
+```bash
+dotnet run -- --seed
+```
+
 ### 4. Run the application
 
 ```bash
