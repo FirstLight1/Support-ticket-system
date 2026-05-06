@@ -1,11 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SupportTicketSystem.data;
 using SupportTicketSystem.Models;
+using System;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SupportTicketSystem.Controllers;
 
@@ -20,24 +22,28 @@ public class AdminController : Controller
     }
 
     // GET /Admin
-    public IActionResult Index()
+    public IActionResult Index(string sortBy = "severity")
     {
-        var tickets = _db.Tickets
+        var query = _db.Tickets
             .Include(t => t.CreatedBy)
             .Include(t => t.AssignedTo)
             .Where(t => t.Status == TicketStatusEnum.Unassigned ||
-                        t.Status == TicketStatusEnum.Inprogress)
-            .OrderBy(t => t.Status)
-            .ThenByDescending(t => t.Severity)
-            .ToList();
+                        t.Status == TicketStatusEnum.Inprogress);
 
-        var admins = _db.Users
-            .Where(u => u.IsAdmin)
-            .ToList();
+        query = sortBy switch
+        {
+            "severity" => query.OrderByDescending(t => t.Severity),
+            "type" => query.OrderByDescending(t => t.TicketType),
+            "date" => query.OrderByDescending(t => t.DatumVytvorenia),
+            _ => query.OrderByDescending(t => t.Severity)
+        };
 
+        var admins = _db.Users.Where(u => u.IsAdmin).ToList();
+
+        ViewBag.SortBy = sortBy;
         return View(new AdminIndexViewModel
         {
-            Tickets = tickets,
+            Tickets = query.ToList(),
             Admins = admins
         });
     }

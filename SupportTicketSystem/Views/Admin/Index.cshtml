@@ -11,6 +11,18 @@
 }
 else
 {
+    <div class="d-flex gap-2 mb-3">
+        <span class="me-2 align-self-center">Order by:</span>
+        <a asp-action="Index" asp-route-sortBy="date"
+               class="btn btn-sm @(ViewBag.SortBy == "date" ? "btn-dark" : "btn-outline-dark")">Date</a>
+
+        <a asp-action="Index" asp-route-sortBy="severity"
+               class="btn btn-sm @(ViewBag.SortBy == "severity" ? "btn-dark" : "btn-outline-dark")">Severity</a>
+
+        <a asp-action="Index" asp-route-sortBy="type"
+               class="btn btn-sm @(ViewBag.SortBy == "type" ? "btn-dark" : "btn-outline-dark")">Type </a>
+
+    </div>
     <table class="table table-hover align-middle">
         <thead class="table-dark">
             <tr>

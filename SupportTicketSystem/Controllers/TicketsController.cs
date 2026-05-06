@@ -1,11 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SupportTicketSystem.data;
 using SupportTicketSystem.Models;
+using System;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SupportTicketSystem.Controllers;
 
@@ -29,11 +30,19 @@ public class TicketsController : Controller
     // GET
     [HttpGet]
     [Authorize]
-    public IActionResult Index()
+    public IActionResult Index(string sortBy = "date")
     {
         var userId = User.GetUserId();
-        var tickets = _db.Tickets.Where(t => t.CreatedByUserId == userId).ToList();
-        return View(tickets);
+        var query = _db.Tickets.Where(t => t.CreatedByUserId == userId);
+        query = sortBy switch
+        {
+            "severity" => query.OrderByDescending(t => t.Severity),
+            "type"     => query.OrderByDescending(t => t.TicketType),
+            "date"     => query.OrderByDescending(t => t.DatumVytvorenia),
+            _          => query.OrderByDescending(t => t.DatumVytvorenia)
+        };
+        ViewBag.SortBy = sortBy;
+        return View(query.ToList());
     }
 
     [HttpGet]
