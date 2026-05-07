@@ -10,9 +10,9 @@
 
 [] Vediet ako admin otvorit ticket details
 
-[] Admin by mal vediet marknut ticket ako completer
+[] Admin by mal vediet marknut ticket ako completed
 
-[] Zmenit nahrany obrazok v ticket edite
+[x] Zmenit nahrany obrazok v ticket edite
 
 [x] rozdelit in progress a completed tickety
 

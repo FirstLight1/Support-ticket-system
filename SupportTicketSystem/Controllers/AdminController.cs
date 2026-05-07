@@ -71,4 +71,22 @@ public class AdminController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+    
+    // POST /Admin/Complete
+    public async Task<IActionResult> Complete(int ticketId)
+    {
+        var ticket = await _db.Tickets.FindAsync(ticketId);
+        if (ticket == null) return NotFound();
+
+        ticket.Status = TicketStatusEnum.Completed;
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        return RedirectToAction(nameof(Index));
+    }
 }
