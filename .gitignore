@@ -40,3 +40,5 @@ obj/
 # Logs
 *.log
 logs/
+
+wwwroot/Images

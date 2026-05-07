@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using SupportTicketSystem.data;
 using SupportTicketSystem.Models;
 using System;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using SupportTicketSystem.Utils;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SupportTicketSystem.Controllers;
@@ -22,10 +26,12 @@ public static class ClaimsPrincipalExtensions
 public class TicketsController : Controller
 {
     private readonly AppDbContext _db;
-    
-    public TicketsController(AppDbContext db)
+    private readonly IWebHostEnvironment _env;
+
+    public TicketsController(AppDbContext db, IWebHostEnvironment env)
     {
         _db = db;
+        _env = env;
     }
     // GET
     [HttpGet]
@@ -58,6 +64,13 @@ public class TicketsController : Controller
     {
         var userId = User.GetUserId();
 
+        long size = ticket.Image.Length;
+
+        if (size > 1024 * 1024 * 5)
+        {
+            ModelState.AddModelError(string.Empty, "Image too large");
+        }
+
         if (userId != null)
         {
             ticket.CreatedByUserId = (Guid)userId;
@@ -66,9 +79,14 @@ public class TicketsController : Controller
         {
             ModelState.AddModelError(string.Empty, "Invalid user");
         }
+        string newFileName = Guid.NewGuid().ToString();
+        var imgUploadUtil = new ImageUploadUtil(ticket.Image, newFileName, _env);
         
         try
         {
+            string imgFilePath =  await imgUploadUtil.ValidateImage(ticket.Image);
+            ticket.ImagePath = imgFilePath;
+            ticket.Image = null;
             _db.Tickets.Add(ticket);
             await _db.SaveChangesAsync();
         }

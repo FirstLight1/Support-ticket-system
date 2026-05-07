@@ -1,6 +1,8 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,6 +50,11 @@ public class Tickets
     public SeverityEnum Severity { get; set; }
 
     public TicketStatusEnum Status { get; set; }
+
+    public string? ImagePath { get; set; } 
+    
+    [NotMapped]
+    public IFormFile? Image { get; set; }
     
     public Guid CreatedByUserId { get; set; }
     public UserModel CreatedBy { get; set; }
