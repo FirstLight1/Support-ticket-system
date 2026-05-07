@@ -6,7 +6,13 @@
 
 [x] Možnosť zoradiť tickety podľa Severity/Type/date-created pre adminov,aj pre userov
 
+[x] Moznost pridat obrazok k ticketu;
 
-[] Moznost pridat obrazok k ticketu;
+[] Vediet ako admin otvorit ticket details
+
+[] Admin by mal vediet marknut ticket ako completer
+
+[] Zmenit nahrany obrazok v ticket edite
+
 
 
