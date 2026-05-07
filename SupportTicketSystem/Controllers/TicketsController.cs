@@ -39,7 +39,8 @@ public class TicketsController : Controller
     public IActionResult Index(string sortBy = "date")
     {
         var userId = User.GetUserId();
-        var query = _db.Tickets.Where(t => t.CreatedByUserId == userId);
+        var query = _db.Tickets.Where(t => t.CreatedByUserId == userId).Where(t => t.Status != TicketStatusEnum.Completed);
+        var completedTickets = _db.Tickets.Where(t => t.CreatedByUserId == userId).Where(t => t.Status == TicketStatusEnum.Completed).ToList();
         query = sortBy switch
         {
             "severity" => query.OrderByDescending(t => t.Severity),
@@ -48,7 +49,8 @@ public class TicketsController : Controller
             _          => query.OrderByDescending(t => t.DatumVytvorenia)
         };
         ViewBag.SortBy = sortBy;
-        return View(query.ToList());
+        
+        return View(new TicketsIndexModel(){ActiveTickets = query.ToList(), CompletedTickets = completedTickets});
     }
 
     [HttpGet]
@@ -64,12 +66,7 @@ public class TicketsController : Controller
     {
         var userId = User.GetUserId();
 
-        long size = ticket.Image.Length;
 
-        if (size > 1024 * 1024 * 5)
-        {
-            ModelState.AddModelError(string.Empty, "Image too large");
-        }
 
         if (userId != null)
         {
@@ -79,14 +76,32 @@ public class TicketsController : Controller
         {
             ModelState.AddModelError(string.Empty, "Invalid user");
         }
-        string newFileName = Guid.NewGuid().ToString();
-        var imgUploadUtil = new ImageUploadUtil(ticket.Image, newFileName, _env);
-        
+
+        if (ticket.Image != null)
+        {
+            long size = ticket.Image.Length;
+
+            if (size > 1024 * 1024 * 5)
+            {
+                ModelState.AddModelError(string.Empty, "Image too large");
+            }
+
+            string newFileName = Guid.NewGuid().ToString();
+            var imgUploadUtil = new ImageUploadUtil(ticket.Image, newFileName, _env);
+            
+            try
+            {
+                string imgFilePath = await imgUploadUtil.ValidateImage(ticket.Image);
+                ticket.ImagePath = imgFilePath;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
         try
         {
-            string imgFilePath =  await imgUploadUtil.ValidateImage(ticket.Image);
-            ticket.ImagePath = imgFilePath;
-            ticket.Image = null;
             _db.Tickets.Add(ticket);
             await _db.SaveChangesAsync();
         }

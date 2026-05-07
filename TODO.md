@@ -14,5 +14,5 @@
 
 [] Zmenit nahrany obrazok v ticket edite
 
-
+[x] rozdelit in progress a completed tickety
 

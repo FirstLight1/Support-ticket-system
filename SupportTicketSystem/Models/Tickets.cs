@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
@@ -70,4 +71,10 @@ public class EditTicketModel
     public TicketTypeEnum TicketType { get; set; }
     public string TicketText { get; set; }
     public SeverityEnum Severity { get; set; }
+}
+
+public class TicketsIndexModel
+{
+    public List<Tickets> ActiveTickets { get; set; }
+    public List<Tickets> CompletedTickets { get; set; }
 }
