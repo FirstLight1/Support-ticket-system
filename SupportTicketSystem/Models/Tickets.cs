@@ -70,6 +70,9 @@ public class EditTicketModel
     public string Predmet { get; set; }
     public TicketTypeEnum TicketType { get; set; }
     public string TicketText { get; set; }
+    
+    public string? ImagePath { get; set; }
+    public IFormFile? Image { get; set; }
     public SeverityEnum Severity { get; set; }
 }
 

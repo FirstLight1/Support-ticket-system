@@ -134,6 +134,7 @@ public class TicketsController : Controller
             Severity = ticket.Severity,
             TicketText =  ticket.TicketText,
             TicketType =  ticket.TicketType,
+            ImagePath =  ticket.ImagePath,
         };
         
         return View(editTicket);
@@ -144,8 +145,33 @@ public class TicketsController : Controller
     public async Task<IActionResult> Edit(EditTicketModel ticket, int id)
     {
         var ticketToEdit = await _db.Tickets.FindAsync(id);
+        
         if (ticketToEdit != null)
         {
+            if (ticket.Image != null)
+            {
+                long size = ticket.Image.Length;
+
+                if (size > 1024 * 1024 * 5)
+                {
+                    ModelState.AddModelError(string.Empty, "Image too large");
+                }
+
+                string newFileName = Guid.NewGuid().ToString();
+                var imgUploadUtil = new ImageUploadUtil(ticket.Image, newFileName, _env);
+            
+                try
+                {
+                    string imgFilePath = await imgUploadUtil.ValidateImage(ticket.Image);
+                    ticket.ImagePath = imgFilePath;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+            
+            
             ticket.TicketId = ticketToEdit.TicketId;
             _db.Entry(ticketToEdit).CurrentValues.SetValues(ticket);
             await _db.SaveChangesAsync();

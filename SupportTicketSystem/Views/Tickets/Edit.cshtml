@@ -12,7 +12,7 @@
 
 <div class="card">
     <div class="card-body">
-        <form asp-action="Edit" method="post">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
             <div class="mb-3">
@@ -36,6 +36,16 @@
                 <label asp-for="Severity" class="form-label"></label>
                 <select asp-for="Severity" asp-items="Html.GetEnumSelectList<SeverityEnum>()" class="form-select"></select>
             </div>
+            
+            <div class="mb-3">
+                <label asp-for="Image" class="form-label">Change Image</label>
+                <input asp-for="Image" class="change-image-input" accept="image/*"/>
+                <div class="image-div">
+                    <img src="@Model.ImagePath" width="300" class="image"/>
+
+                    
+                </div>
+            </div>
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-success" asp-route-id="@Model.TicketId">Save</button>
@@ -43,4 +53,16 @@
             </div>
         </form>
     </div>
+    <script>
+        const imageDiv = document.querySelector('.image-div');
+        const input = document.querySelector('.change-image-input');
+        const image = document.querySelector('.image');
+
+
+        input.addEventListener('change', (e) => {
+            const newImage = input.files[0];
+            if(!newImage) return;
+            image.src = URL.createObjectURL(newImage);
+        })
+    </script>
 </div>
