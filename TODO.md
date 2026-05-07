@@ -10,7 +10,7 @@
 
 [] Vediet ako admin otvorit ticket details
 
-[] Admin by mal vediet marknut ticket ako completed
+[x] Admin by mal vediet marknut ticket ako completed
 
 [x] Zmenit nahrany obrazok v ticket edite
 
