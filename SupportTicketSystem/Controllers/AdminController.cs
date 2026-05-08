@@ -26,11 +26,9 @@ public class AdminController : Controller
     {
         var query = _db.Tickets
             .Include(t => t.CreatedBy)
-            .Include(t => t.AssignedTo)
-            .Where(t => t.Status == TicketStatusEnum.Unassigned ||
-                        t.Status == TicketStatusEnum.Inprogress);
+            .Include(t => t.AssignedTo);
 
-        query = sortBy switch
+        var sorted = sortBy switch
         {
             "severity" => query.OrderByDescending(t => t.Severity),
             "type" => query.OrderByDescending(t => t.TicketType),
@@ -38,12 +36,19 @@ public class AdminController : Controller
             _ => query.OrderByDescending(t => t.Severity)
         };
 
+        var allTickets = sorted.ToList();
         var admins = _db.Users.Where(u => u.IsAdmin).ToList();
 
         ViewBag.SortBy = sortBy;
         return View(new AdminIndexViewModel
         {
-            Tickets = query.ToList(),
+            ActiveTickets = allTickets
+                .Where(t => t.Status == TicketStatusEnum.Unassigned ||
+                            t.Status == TicketStatusEnum.Inprogress)
+                .ToList(),
+            CompletedTickets = allTickets
+                .Where(t => t.Status == TicketStatusEnum.Completed)
+                .ToList(),
             Admins = admins
         });
     }
