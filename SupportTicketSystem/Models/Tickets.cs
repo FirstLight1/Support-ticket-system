@@ -62,6 +62,7 @@ public class Tickets
 
     public Guid? AssignedToUserId {get; set;}
     public UserModel? AssignedTo {get; set;}
+    public string? CompletionNote { get; set; }
 }
 
 public class EditTicketModel

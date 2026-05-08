@@ -78,12 +78,14 @@ public class AdminController : Controller
     }
     
     // POST /Admin/Complete
-    public async Task<IActionResult> Complete(int ticketId)
+    public async Task<IActionResult> Complete(int ticketId, string? comletionNote)
     {
         var ticket = await _db.Tickets.FindAsync(ticketId);
         if (ticket == null) return NotFound();
 
         ticket.Status = TicketStatusEnum.Completed;
+        ticket.CompletionNote  = comletionNote;
+        
         try
         {
             await _db.SaveChangesAsync();

@@ -5,7 +5,7 @@
 
 <h2 class="mb-4">Ticket Queue</h2>
 
-<div class="d-flex gap-2 mb-3">
+<div class="d-flex gap-2 mb-4">
     <span class="me-2 align-self-center">Order by:</span>
     <a asp-action="Index" asp-route-sortBy="date"
        class="btn btn-sm @(ViewBag.SortBy == "date" ? "btn-dark" : "btn-outline-dark")">Date</a>
@@ -18,63 +18,89 @@
 <h3>Active tickets</h3>
 @if (!Model.ActiveTickets.Any())
 {
-    <p class="text-muted">Žiadne otvorené tickety.</p>
+    <p class="text-muted">There is no active tickets.</p>
 }
 else
 {
-    <table class="table table-hover align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>Created</th>
-                <th>Subject</th>
-                <th>Type</th>
-                <th>Severity</th>
-                <th>Status</th>
-                <th>Created by</th>
-                <th>Assigned to</th>
-                <th>Assign to</th>
-                <th>Mark Completed</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var ticket in Model.ActiveTickets)
-            {
-                var badgeClass = ticket.Severity switch
-                {
-                    SupportTicketSystem.Models.SeverityEnum.Critical => "bg-danger",
-                    SupportTicketSystem.Models.SeverityEnum.High => "bg-warning text-dark",
-                    SupportTicketSystem.Models.SeverityEnum.Medium => "bg-info text-dark",
-                    _ => "bg-secondary"
-                };
-                <tr>
-                    <td>@DateTimeOffset.Parse(ticket.DatumVytvorenia).ToString("dd.MM.yyyy")</td>
-                    <td>@ticket.Predmet</td>
-                    <td>@ticket.TicketType</td>
-                    <td><span class="badge @badgeClass">@ticket.Severity</span></td>
-                    <td>@ticket.Status</td>
-                    <td>@ticket.CreatedBy?.Email</td>
-                    <td>@(ticket.AssignedTo?.Email ?? "—")</td>
-                    <td>
-                        <form asp-action="Assign" asp-controller="Admin" method="post" class="d-flex gap-2">
-                            <input type="hidden" name="ticketId" value="@ticket.TicketId" />
-                            <select name="assignedToUserId" class="form-select form-select-sm">
-                                @foreach (var admin in Model.Admins)
-                                {
-                                    <option value="@admin.Id">@admin.Email</option>
-                                }
-                            </select>
-                            <button type="submit" class="btn btn-sm btn-primary">Assign</button>
-                        </form>
-                    </td>
-                    <td>
-                        <form asp-action="Complete" asp-controller="Admin" method="post" asp-route-ticketId="@ticket.TicketId">
-                            <button type="submit" onclick="return confirm('Complete?')" class="btn btn-sm btn-success">Completed</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    @foreach (var ticket in Model.ActiveTickets)
+    {
+        var badgeClass = ticket.Severity switch
+        {
+            SupportTicketSystem.Models.SeverityEnum.Critical => "bg-danger",
+            SupportTicketSystem.Models.SeverityEnum.High => "bg-warning text-dark",
+            SupportTicketSystem.Models.SeverityEnum.Medium => "bg-info text-dark",
+            _ => "bg-secondary"
+        };
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex gap-2 align-items-center">
+                    <strong>@ticket.Predmet</strong>
+                    <span class="badge @badgeClass">@ticket.Severity</span>
+                    <span class="badge bg-light text-dark border">@ticket.TicketType</span>
+                    <span class="badge bg-light text-dark border">@ticket.Status</span>
+                </div>
+                <small class="text-muted">@DateTimeOffset.Parse(ticket.DatumVytvorenia).ToString("dd.MM.yyyy")</small>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted">Created by</small>
+                        <p class="mb-0">@ticket.CreatedBy?.Email</p>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted">Assigned to</small>
+                        <p class="mb-0">@(ticket.AssignedTo?.Email ?? "—")</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a class="btn btn-sm btn-outline-primary"
+                           asp-controller="Tickets" asp-action="Details" asp-route-id="@ticket.TicketId">
+                        Detail
+                    </a>
+
+                    <form asp-action="Assign" asp-controller="Admin" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="ticketId" value="@ticket.TicketId" />
+                        <select name="assignedToUserId" class="form-select form-select-sm">
+                            @foreach (var admin in Model.Admins)
+                            {
+                                <option value="@admin.Id">@admin.Email</option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">Assign</button>
+                    </form>
+
+                    <button class="btn btn-sm btn-success"
+                            data-bs-toggle="modal"
+                            data-bs-target="#completeModal-@ticket.TicketId">
+                        Complete
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="completeModal-@ticket.TicketId" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form asp-action="Complete" asp-controller="Admin" method="post">
+                        <input type="hidden" name="ticketId" value="@ticket.TicketId" />
+                        <div class="modal-header">
+                            <h5 class="modal-title">Complete ticket</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label class="form-label">Completion note (optional)</label>
+                            <textarea name="completionNote" class="form-control" rows="3"
+                                      placeholder="Describe what was done..."></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success">Mark as Completed</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
 }
 
 <h3 class="mt-4">Completed tickets</h3>
@@ -84,36 +110,49 @@ else
 }
 else
 {
-    <table class="table table-hover align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>Created</th>
-                <th>Subject</th>
-                <th>Type</th>
-                <th>Severity</th>
-                <th>Created by</th>
-                <th>Assigned to</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var ticket in Model.CompletedTickets)
-            {
-                var badgeClass = ticket.Severity switch
+    @foreach (var ticket in Model.CompletedTickets)
+    {
+        var badgeClass = ticket.Severity switch
+        {
+            SupportTicketSystem.Models.SeverityEnum.Critical => "bg-danger",
+            SupportTicketSystem.Models.SeverityEnum.High => "bg-warning text-dark",
+            SupportTicketSystem.Models.SeverityEnum.Medium => "bg-info text-dark",
+            _ => "bg-secondary"
+        };
+        <div class="card mb-3 border-success">
+            <div class="card-header d-flex justify-content-between align-items-center bg-success bg-opacity-10">
+                <div class="d-flex gap-2 align-items-center">
+                    <strong>@ticket.Predmet</strong>
+                    <span class="badge @badgeClass">@ticket.Severity</span>
+                    <span class="badge bg-light text-dark border">@ticket.TicketType</span>
+                </div>
+                <small class="text-muted">@DateTimeOffset.Parse(ticket.DatumVytvorenia).ToString("dd.MM.yyyy")</small>
+            </div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <small class="text-muted">Created by</small>
+                        <p class="mb-0">@ticket.CreatedBy?.Email</p>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted">Assigned to</small>
+                        <p class="mb-0">@(ticket.AssignedTo?.Email ?? "—")</p>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(ticket.CompletionNote))
                 {
-                    SupportTicketSystem.Models.SeverityEnum.Critical => "bg-danger",
-                    SupportTicketSystem.Models.SeverityEnum.High => "bg-warning text-dark",
-                    SupportTicketSystem.Models.SeverityEnum.Medium => "bg-info text-dark",
-                    _ => "bg-secondary"
-                };
-                <tr>
-                    <td>@DateTimeOffset.Parse(ticket.DatumVytvorenia).ToString("dd.MM.yyyy")</td>
-                    <td>@ticket.Predmet</td>
-                    <td>@ticket.TicketType</td>
-                    <td><span class="badge @badgeClass">@ticket.Severity</span></td>
-                    <td>@ticket.CreatedBy?.Email</td>
-                    <td>@(ticket.AssignedTo?.Email ?? "—")</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                    <div class="mt-2">
+                        <small class="text-muted">Completion note</small>
+                        <p class="mb-0">@ticket.CompletionNote</p>
+                    </div>
+                }
+                <div class="mt-3">
+                    <a class="btn btn-sm btn-outline-primary"
+                           asp-controller="Tickets" asp-action="Details" asp-route-id="@ticket.TicketId">
+                        Detail
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
 }
