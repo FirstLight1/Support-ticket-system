@@ -114,7 +114,7 @@ public class TicketsController : Controller
 
     [HttpGet]
     [Authorize]
-    public IActionResult Edit(int? id)
+    public IActionResult Edit(int? id, string? returnUrl)
     {
         if (id == null) return NotFound();
         
@@ -132,14 +132,16 @@ public class TicketsController : Controller
             TicketText =  ticket.TicketText,
             TicketType =  ticket.TicketType,
             ImagePath =  ticket.ImagePath,
+            ReturnUrl = returnUrl
         };
-        
+
+        ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Tickets");
         return View(editTicket);
     }
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Edit(EditTicketModel ticket, int id)
+    public async Task<IActionResult> Edit(EditTicketModel ticket, int id, string? returnUrl)
     {
         var ticketToEdit = await _db.Tickets.FindAsync(id);
         
@@ -172,7 +174,7 @@ public class TicketsController : Controller
             ticket.TicketId = ticketToEdit.TicketId;
             _db.Entry(ticketToEdit).CurrentValues.SetValues(ticket);
             await _db.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Redirect(returnUrl ?? Url.Action("Index", "Tickets"));
         }
         
         ModelState.AddModelError(string.Empty, "Ticket not found");
@@ -180,19 +182,18 @@ public class TicketsController : Controller
 
     }
 
-    public IActionResult Details(int id)
+    public IActionResult Details(int id, string? returnUrl)
     {
         var ticket = _db.Tickets.Find(id);
-        if (ticket == null)
-        {
-            return NotFound();
-        }
+        if (ticket == null)return NotFound();
+
+        ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Tickets");
         return View(ticket);
     }
     
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Delete(int ticketId)
+    public async Task<IActionResult> Delete(int ticketId, string? returnUrl)
     {
         Tickets? ticket = await _db.Tickets.FindAsync(ticketId);
         
@@ -214,7 +215,7 @@ public class TicketsController : Controller
             ModelState.AddModelError(string.Empty, "Ticket not found");
         }
         
-        return RedirectToAction(nameof(Index));
+        return Redirect(returnUrl ?? Url.Action("Index", "Tickets"));
     }
     
     

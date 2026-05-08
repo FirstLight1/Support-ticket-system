@@ -75,6 +75,7 @@ public class EditTicketModel
     public string? ImagePath { get; set; }
     public IFormFile? Image { get; set; }
     public SeverityEnum Severity { get; set; }
+    public string? ReturnUrl { get; set; }
 }
 
 public class TicketsIndexModel
