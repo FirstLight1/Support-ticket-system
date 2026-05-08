@@ -116,17 +116,14 @@ public class TicketsController : Controller
     [Authorize]
     public IActionResult Edit(int? id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
+        if (id == null) return NotFound();
         
         var ticket = _db.Tickets.Find(id);
+        if (ticket == null)return NotFound();
 
-        if (ticket == null)
-        { 
-            return NotFound();
-        }
+        if (ticket.Status == TicketStatusEnum.Completed)
+            return RedirectToAction(nameof(Details), new { id = ticket.TicketId });
+
         EditTicketModel editTicket = new EditTicketModel
         {
             TicketId =  ticket.TicketId,
