@@ -64,6 +64,12 @@ public class TicketsController : Controller
     [Authorize]
     public async Task<IActionResult> Create(Tickets ticket)
     {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError("", "Invalid ticket");
+            return View(ticket);
+        } 
+        
         var userId = User.GetUserId();
 
 
