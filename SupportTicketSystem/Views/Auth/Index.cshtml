@@ -15,9 +15,27 @@
         <span asp-validation-for="Email" class="text-danger"></span>
 
         <label asp-for="Password">Password</label>
-        <input asp-for="Password" class="form-control mb-2" />
+        <input asp-for="Password" class="form-control mb-2" id="password" />
         <span asp-validation-for="Password" class="text-danger"></span>
-
+        <div>
+            <input type="checkbox" class="showPassword"/>
+            <p>Show password</p>
+        </div>
+        
         <button type="submit" class="btn btn-success mt-2">Log in</button>
     </form>
 </div>
+<script>
+    function showPsw(){
+        const x = document.getElementById("password");
+        if (x.type === "password") {
+            x.type = "text";
+        } else {
+            x.type = "password";
+        }
+    }
+
+    document.querySelector(".showPassword").addEventListener('click', () => {
+        showPsw();
+    })
+</script>
