@@ -1,8 +1,44 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center hero">
+    <h1 class="display-4">Track every ticket.<br/>Resolve faster.</h1>
+    <p class="hero-sub">A focused queue for support tickets — file an issue, triage by severity, see it through to completion.</p>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <div class="hero-actions">
+            <a class="btn btn-primary" asp-controller="Tickets" asp-action="Index">Open my tickets →</a>
+            @if (User.IsInRole("Admin"))
+            {
+                <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="Index">Admin queue</a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="hero-actions">
+            <a class="btn btn-primary" asp-controller="Auth" asp-action="Index">Log in →</a>
+            <a class="btn btn-outline-secondary" asp-controller="Home" asp-action="Register">Create account</a>
+        </div>
+    }
+</div>
+
+<div class="hero-features">
+    <div class="hero-feature">
+        <div class="hero-feature-mark">01</div>
+        <h3>Severity-aware queue</h3>
+        <p>Critical, high, medium, low. Each ticket is color-stripped and sortable at a glance.</p>
+    </div>
+    <div class="hero-feature">
+        <div class="hero-feature-mark">02</div>
+        <h3>From filing to fix</h3>
+        <p>Status flows from unassigned to in-progress to completed — with notes when it's resolved.</p>
+    </div>
+    <div class="hero-feature">
+        <div class="hero-feature-mark">03</div>
+        <h3>Built for support teams</h3>
+        <p>Admins assign and resolve. Submitters file with screenshots and follow it through.</p>
+    </div>
 </div>
