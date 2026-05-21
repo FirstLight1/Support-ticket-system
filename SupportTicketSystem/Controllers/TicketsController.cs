@@ -97,6 +97,7 @@ public class TicketsController : Controller
             TicketText = ticket.TicketText,
             TicketType = ticket.TicketType,
             ImagePath = ticket.ImagePath,
+            RelatedProject = ticket.RelatedProject,
             ReturnUrl = returnUrl
         };
 

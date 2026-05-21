@@ -119,6 +119,7 @@ public class TicketAccess
         ticket.TicketText = changes.TicketText;
         ticket.TicketType = changes.TicketType;
         ticket.Severity = changes.Severity;
+        ticket.RelatedProject = changes.RelatedProject;
         if (changes.ImagePath != null)
             ticket.ImagePath = changes.ImagePath;
 

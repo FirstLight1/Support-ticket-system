@@ -32,6 +32,7 @@ else
             <tr>
                 <th>Created</th>
                 <th>Subject</th>
+                <th>Project</th>
                 <th>Type</th>
                 <th>Severity</th>
                 <th>Status</th>
@@ -51,6 +52,23 @@ else
                 <tr>
                     <td>@DateTimeOffset.Parse(ticket.DatumVytvorenia).ToString("dd.MM.yyyy")</td>
                     <td>@ticket.Predmet</td>
+                    <td>
+                        @{
+                            var projectUrl = GitHubProjects.UrlFor(ticket.RelatedProject);
+                        }
+                        @if (ticket.RelatedProject != null && projectUrl != null)
+                        {
+                            <a href="@projectUrl" target="_blank" rel="noopener noreferrer">@ticket.RelatedProject</a>
+                        }
+                        else if (!string.IsNullOrEmpty(ticket.RelatedProject))
+                        {
+                            @ticket.RelatedProject
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </td>
                     <td>@ticket.TicketType</td>
                     <td><span class="badge @badgeClass">@ticket.Severity</span></td>
                     <td>@ticket.Status</td>
@@ -79,6 +97,7 @@ else
             <tr>
                 <th>Created</th>
                 <th>Subject</th>
+                <th>Project</th>
                 <th>Type</th>
                 <th>Severity</th>
                 <th>Status</th>
@@ -98,6 +117,23 @@ else
                 <tr>
                     <td>@DateTimeOffset.Parse(ticket.DatumVytvorenia).ToString("dd.MM.yyyy")</td>
                     <td>@ticket.Predmet</td>
+                    <td>
+                        @{
+                            var projectUrl = GitHubProjects.UrlFor(ticket.RelatedProject);
+                        }
+                        @if (ticket.RelatedProject != null && projectUrl != null)
+                        {
+                            <a href="@projectUrl" target="_blank" rel="noopener noreferrer">@ticket.RelatedProject</a>
+                        }
+                        else if (!string.IsNullOrEmpty(ticket.RelatedProject))
+                        {
+                            @ticket.RelatedProject
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </td>
                     <td>@ticket.TicketType</td>
                     <td><span class="badge @badgeClass">@ticket.Severity</span></td>
                     <td>@ticket.Status</td>

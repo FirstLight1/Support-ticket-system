@@ -37,6 +37,23 @@
                 <p>@DateTimeOffset.Parse(Model.DatumVytvorenia).ToString("dd.MM.yyyy HH:mm")</p>
             </div>
         </div>
+        @if (!string.IsNullOrEmpty(Model.RelatedProject))
+        {
+            var projectUrl = GitHubProjects.UrlFor(Model.RelatedProject);
+            <div class="mb-3">
+                <strong>Related project</strong>
+                <p class="mb-0">
+                    @if (projectUrl != null)
+                    {
+                        <a href="@projectUrl" target="_blank" rel="noopener noreferrer">@Model.RelatedProject</a>
+                    }
+                    else
+                    {
+                        @Model.RelatedProject
+                    }
+                </p>
+            </div>
+        }
         <hr />
         <strong>Description</strong>
         <p>@Model.TicketText</p>

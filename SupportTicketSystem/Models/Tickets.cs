@@ -63,6 +63,10 @@ public class Tickets
     public Guid? AssignedToUserId {get; set;}
     public UserModel? AssignedTo {get; set;}
     public string? CompletionNote { get; set; }
+
+    // Name of the related GitHub project (see Utils/GitHubProjects). Optional — not every
+    // ticket maps to one project. The repo name is stored; the URL is resolved at display time.
+    public string? RelatedProject { get; set; }
 }
 
 public class EditTicketModel
@@ -75,6 +79,7 @@ public class EditTicketModel
     public string? ImagePath { get; set; }
     public IFormFile? Image { get; set; }
     public SeverityEnum Severity { get; set; }
+    public string? RelatedProject { get; set; }
     public string? ReturnUrl { get; set; }
 }
 

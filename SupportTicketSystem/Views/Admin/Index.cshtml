@@ -37,6 +37,19 @@ else
                     <strong>@ticket.Predmet</strong>
                     <span class="badge @badgeClass">@ticket.Severity</span>
                     <span class="badge bg-light text-dark border">@ticket.TicketType</span>
+                    @if (!string.IsNullOrEmpty(ticket.RelatedProject))
+                    {
+                        var projectUrl = SupportTicketSystem.Utils.GitHubProjects.UrlFor(ticket.RelatedProject);
+                        @if (projectUrl != null)
+                        {
+                            <a href="@projectUrl" target="_blank" rel="noopener noreferrer"
+                               class="badge bg-dark text-decoration-none">@ticket.RelatedProject</a>
+                        }
+                        else
+                        {
+                            <span class="badge bg-dark">@ticket.RelatedProject</span>
+                        }
+                    }
                     <span class="badge bg-light text-dark border">@ticket.Status</span>
                 </div>
                 <small class="text-muted">@DateTimeOffset.Parse(ticket.DatumVytvorenia).ToString("dd.MM.yyyy")</small>
@@ -130,6 +143,19 @@ else
                     <strong>@ticket.Predmet</strong>
                     <span class="badge @badgeClass">@ticket.Severity</span>
                     <span class="badge bg-light text-dark border">@ticket.TicketType</span>
+                    @if (!string.IsNullOrEmpty(ticket.RelatedProject))
+                    {
+                        var projectUrl = SupportTicketSystem.Utils.GitHubProjects.UrlFor(ticket.RelatedProject);
+                        @if (projectUrl != null)
+                        {
+                            <a href="@projectUrl" target="_blank" rel="noopener noreferrer"
+                               class="badge bg-dark text-decoration-none">@ticket.RelatedProject</a>
+                        }
+                        else
+                        {
+                            <span class="badge bg-dark">@ticket.RelatedProject</span>
+                        }
+                    }
                 </div>
                 <small class="text-muted">@DateTimeOffset.Parse(ticket.DatumVytvorenia).ToString("dd.MM.yyyy")</small>
             </div>

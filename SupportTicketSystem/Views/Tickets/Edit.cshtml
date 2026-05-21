@@ -39,6 +39,13 @@
             </div>
 
             <div class="mb-3">
+                <label asp-for="RelatedProject" class="form-label">Related project</label>
+                <select asp-for="RelatedProject" asp-items="GitHubProjects.SelectList()" class="form-select">
+                    <option value="">— None —</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
                 <label asp-for="Image" class="form-label">Change Image</label>
                 <input asp-for="Image" class="change-image-input" accept="image/*" />
                 <div class="image-div">

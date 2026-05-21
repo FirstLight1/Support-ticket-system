@@ -77,7 +77,8 @@ public static class PopulateDb
             {
                 Predmet = "Nefunguje prihlasenie", TicketText = "Pri pokuse o prihlasenie sa zobrazuje chyba 401.",
                 TicketType = TicketTypeEnum.BugReport, Severity = SeverityEnum.High,
-                Status = TicketStatusEnum.Unassigned, CreatedByUserId = regularUsers[0].Id
+                Status = TicketStatusEnum.Unassigned, CreatedByUserId = regularUsers[0].Id,
+                RelatedProject = "AIS-autologin"
             },
             new()
             {
@@ -98,7 +99,8 @@ public static class PopulateDb
             {
                 Predmet = "Chyba pri platbe", TicketText = "Transakcia kartou nepresla, hoci udaje su spravne.",
                 TicketType = TicketTypeEnum.BugReport, Severity = SeverityEnum.High,
-                Status = TicketStatusEnum.Unassigned, CreatedByUserId = regularUsers[1].Id
+                Status = TicketStatusEnum.Unassigned, CreatedByUserId = regularUsers[1].Id,
+                RelatedProject = "cardmarket-autologin"
             },
             new()
             {
@@ -130,7 +132,8 @@ public static class PopulateDb
                 Predmet = "Karta sa nezobrazuje v sklade",
                 TicketText = "Pridal som novu kartu, ale neukazuje sa v zozname skladu.",
                 TicketType = TicketTypeEnum.BugReport, Severity = SeverityEnum.Medium,
-                Status = TicketStatusEnum.Unassigned, CreatedByUserId = regularUsers[2].Id
+                Status = TicketStatusEnum.Unassigned, CreatedByUserId = regularUsers[2].Id,
+                RelatedProject = "pokemon_pricer"
             },
             new()
             {
@@ -166,7 +169,7 @@ public static class PopulateDb
             {
                 Predmet = "Shopify integracia", TicketText = "Ako mozem prepojit Shopify obchod s touto aplikaciou?",
                 TicketType = TicketTypeEnum.Question, Severity = SeverityEnum.Low, Status = TicketStatusEnum.Unassigned,
-                CreatedByUserId = regularUsers[3].Id
+                CreatedByUserId = regularUsers[3].Id, RelatedProject = "tradeTracker"
             },
             new()
             {
