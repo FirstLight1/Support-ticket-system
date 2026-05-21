@@ -38,9 +38,9 @@ public class AdminController : Controller
 
     // POST /Admin/Complete
     [HttpPost]
-    public async Task<IActionResult> Complete(int ticketId)
+    public async Task<IActionResult> Complete(int ticketId, string? completionNote)
     {
-        var result = await _tickets.Complete(ticketId);
+        var result = await _tickets.Complete(ticketId, completionNote);
         if (result == TicketActionResult.NotFound)
             TempData["Error"] = "Ticket not found.";
         else if (result == TicketActionResult.InvalidTransition)

@@ -52,32 +52,43 @@ public class TicketAccess
         };
     }
 
-    /// <summary>The Admin queue (Unassigned or Inprogress), sorted, plus the admin list.</summary>
+    /// <summary>
+    /// The Admin queue, split into active (Unassigned or Inprogress) and completed tickets —
+    /// each sorted — plus the admin list. Creator and assignee are eager-loaded for display.
+    /// </summary>
     public async Task<AdminIndexViewModel> GetAdminIndex(string sort)
     {
-        var query = _db.Tickets
+        var all = _db.Tickets
             .Include(t => t.CreatedBy)
-            .Include(t => t.AssignedTo)
-            .Where(t => t.Status == TicketStatusEnum.Unassigned ||
-                        t.Status == TicketStatusEnum.Inprogress);
+            .Include(t => t.AssignedTo);
 
-        query = ApplySort(query, sort);
+        var active = ApplySort(
+            all.Where(t => t.Status == TicketStatusEnum.Unassigned ||
+                           t.Status == TicketStatusEnum.Inprogress),
+            sort);
+
+        var completed = ApplySort(
+            all.Where(t => t.Status == TicketStatusEnum.Completed),
+            sort);
 
         return new AdminIndexViewModel
         {
-            Tickets = await query.ToListAsync(),
+            ActiveTickets = await active.ToListAsync(),
+            CompletedTickets = await completed.ToListAsync(),
             Admins = await _db.Users.Where(u => u.IsAdmin).ToListAsync()
         };
     }
 
     /// <summary>
-    /// A ticket the given user owns, or <c>null</c> if it is missing OR not theirs.
-    /// The two cases are deliberately indistinguishable so callers can't probe ids.
+    /// A ticket the user is allowed to open: their own, or — when <paramref name="isAdmin"/> —
+    /// any ticket. Returns <c>null</c> when the ticket is missing OR not permitted; the two
+    /// cases are deliberately indistinguishable so callers can't probe ids.
     /// </summary>
-    public async Task<Tickets?> GetForOwner(int id, Guid userId)
+    public async Task<Tickets?> GetForUser(int id, Guid userId, bool isAdmin)
     {
         return await _db.Tickets
-            .FirstOrDefaultAsync(t => t.TicketId == id && t.CreatedByUserId == userId);
+            .FirstOrDefaultAsync(t => t.TicketId == id &&
+                                      (isAdmin || t.CreatedByUserId == userId));
     }
 
     // ── Writes ────────────────────────────────────────────────────────────────
@@ -96,10 +107,11 @@ public class TicketAccess
     /// Image path is only overwritten when a new image was uploaded; Status and ownership
     /// are never touched.
     /// </summary>
-    public async Task<TicketActionResult> UpdateEditable(int id, Guid userId, EditTicketModel changes)
+    public async Task<TicketActionResult> UpdateEditable(int id, Guid userId, bool isAdmin, EditTicketModel changes)
     {
         var ticket = await _db.Tickets
-            .FirstOrDefaultAsync(t => t.TicketId == id && t.CreatedByUserId == userId);
+            .FirstOrDefaultAsync(t => t.TicketId == id &&
+                                      (isAdmin || t.CreatedByUserId == userId));
         if (ticket == null)
             return TicketActionResult.NotFound;
 
@@ -114,11 +126,12 @@ public class TicketAccess
         return TicketActionResult.Ok;
     }
 
-    /// <summary>Deletes the user's own ticket. Not-owned or missing → NotFound.</summary>
-    public async Task<TicketActionResult> Delete(int id, Guid userId)
+    /// <summary>Deletes the user's own ticket (or any ticket when <paramref name="isAdmin"/>). Missing or not permitted → NotFound.</summary>
+    public async Task<TicketActionResult> Delete(int id, Guid userId, bool isAdmin)
     {
         var ticket = await _db.Tickets
-            .FirstOrDefaultAsync(t => t.TicketId == id && t.CreatedByUserId == userId);
+            .FirstOrDefaultAsync(t => t.TicketId == id &&
+                                      (isAdmin || t.CreatedByUserId == userId));
         if (ticket == null)
             return TicketActionResult.NotFound;
 
@@ -142,8 +155,11 @@ public class TicketAccess
         return TicketActionResult.Ok;
     }
 
-    /// <summary>Closes a ticket. Allowed from Unassigned or Inprogress; rejected if already Completed.</summary>
-    public async Task<TicketActionResult> Complete(int id)
+    /// <summary>
+    /// Closes a ticket, optionally recording a completion note. Allowed from Unassigned or
+    /// Inprogress; rejected if already Completed.
+    /// </summary>
+    public async Task<TicketActionResult> Complete(int id, string? completionNote)
     {
         var ticket = await _db.Tickets.FindAsync(id);
         if (ticket == null)
@@ -152,6 +168,7 @@ public class TicketAccess
             return TicketActionResult.InvalidTransition;
 
         ticket.Status = TicketStatusEnum.Completed;
+        ticket.CompletionNote = completionNote;
         await _db.SaveChangesAsync();
         return TicketActionResult.Ok;
     }

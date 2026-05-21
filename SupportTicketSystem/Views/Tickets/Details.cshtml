@@ -5,7 +5,7 @@
 }
 
 <div class="mb-4">
-    <a class="btn btn-outline-secondary btn-sm" asp-action="Index">← Back</a>
+    <a class="btn btn-outline-secondary btn-sm" href="@ViewBag.ReturnUrl">← Back</a>
 </div>
 
 <div class="card">
@@ -40,15 +40,32 @@
         <hr />
         <strong>Description</strong>
         <p>@Model.TicketText</p>
+
         @if (Model.ImagePath != null)
         {
-            <img src="@Model.ImagePath" width="400px" alt="Ticket image"/>
+            <img src="@Model.ImagePath" width="400px" alt="Ticket image" />
+        }
+
+        @if (Model.Status == TicketStatusEnum.Completed && !string.IsNullOrEmpty(Model.CompletionNote))
+        {
+            <hr />
+            <div class="alert alert-success mt-3">
+                <strong>Completion note</strong>
+                <p class="mb-0 mt-1">@Model.CompletionNote</p>
+            </div>
         }
     </div>
-    <div class="card-footer d-flex gap-2">
-        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.TicketId">Edit</a>
-        <form asp-action="Delete" asp-route-ticketId="@Model.TicketId" method="post">
-            <button type="submit" class="btn btn-outline-danger">Delete</button>
-        </form>
-    </div>
+
+    @if (Model.Status != TicketStatusEnum.Completed)
+    {
+        <div class="card-footer d-flex gap-2">
+            <a class="btn btn-outline-secondary"
+               href="/Tickets/Edit/@Model.TicketId?returnUrl=@ViewBag.ReturnUrl">Edit</a>
+            <form asp-action="Delete" asp-route-ticketId="@Model.TicketId"
+                  asp-route-returnUrl="@ViewBag.ReturnUrl" method="post">
+                <button type="submit" class="btn btn-outline-danger">Delete</button>
+            </form>
+        </div>
+    }
 </div>
+

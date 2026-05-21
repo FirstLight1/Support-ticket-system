@@ -58,10 +58,11 @@ public class Tickets
     public IFormFile? Image { get; set; }
     
     public Guid CreatedByUserId { get; set; }
-    public UserModel CreatedBy { get; set; }
+    public UserModel? CreatedBy { get; set; }
 
     public Guid? AssignedToUserId {get; set;}
     public UserModel? AssignedTo {get; set;}
+    public string? CompletionNote { get; set; }
 }
 
 public class EditTicketModel
@@ -74,6 +75,7 @@ public class EditTicketModel
     public string? ImagePath { get; set; }
     public IFormFile? Image { get; set; }
     public SeverityEnum Severity { get; set; }
+    public string? ReturnUrl { get; set; }
 }
 
 public class TicketsIndexModel

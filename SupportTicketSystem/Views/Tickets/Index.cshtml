@@ -9,6 +9,17 @@
     <h2>My tickets</h2>
     <a class="btn btn-success" asp-action="Create">+ Create ticket</a>
 </div>
+
+<div class="d-flex gap-2 mb-3">
+    <span class="me-2 align-self-center">Order by:</span>
+    <a asp-action="Index" asp-route-sortBy="date"
+       class="btn btn-sm @(ViewBag.SortBy == "date" ? "btn-dark" : "btn-outline-dark")">Date</a>
+    <a asp-action="Index" asp-route-sortBy="severity"
+       class="btn btn-sm @(ViewBag.SortBy == "severity" ? "btn-dark" : "btn-outline-dark")">Severity</a>
+    <a asp-action="Index" asp-route-sortBy="type"
+       class="btn btn-sm @(ViewBag.SortBy == "type" ? "btn-dark" : "btn-outline-dark")">Type</a>
+</div>
+
 <h2>Active tickets</h2>
 @if (!Model.ActiveTickets.Any())
 {
@@ -16,90 +27,85 @@
 }
 else
 {
-    <div class="d-flex gap-2 mb-3">
-        <span class="me-2 align-self-center">Order by:</span>
-        <a asp-action="Index" asp-route-sortBy="date"
-           class="btn btn-sm @(ViewBag.SortBy == "date" ? "btn-dark" : "btn-outline-dark")">Date</a>
-
-        <a asp-action="Index" asp-route-sortBy="severity"
-           class="btn btn-sm @(ViewBag.SortBy == "severity" ? "btn-dark" : "btn-outline-dark")">Severity</a>
-
-        <a asp-action="Index" asp-route-sortBy="type"
-           class="btn btn-sm @(ViewBag.SortBy == "type" ? "btn-dark" : "btn-outline-dark")">Type </a>
-
-    </div>
-
     <table class="table table-hover align-middle">
         <thead class="table-dark">
-        <tr>
-            <th>Created</th>
-            <th>Subject</th>
-            <th>Type</th>
-            <th>Severity</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
+            <tr>
+                <th>Created</th>
+                <th>Subject</th>
+                <th>Type</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
         </thead>
         <tbody>
-        @foreach (var ticket in Model.ActiveTickets)
-        {
-            var badgeClass = ticket.Severity switch
+            @foreach (var ticket in Model.ActiveTickets)
             {
-                SeverityEnum.Critical => "bg-danger",
-                SeverityEnum.High     => "bg-warning text-dark",
-                SeverityEnum.Medium   => "bg-info text-dark",
-                _                     => "bg-secondary"
-            };
-            <tr>
-                <td>@DateTimeOffset.Parse(ticket.DatumVytvorenia).ToString("dd.MM.yyyy")</td>
-                <td>@ticket.Predmet</td>
-                <td>@ticket.TicketType</td>
-                <td><span class="badge @badgeClass">@ticket.Severity</span></td>
-                <td>@ticket.Status</td>
-                <td class="d-flex gap-2">
-                    <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@ticket.TicketId">Detail</a>
-                    <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@ticket.TicketId">Edit</a>
-                    <form asp-action="Delete" asp-route-ticketId="@ticket.TicketId" method="post">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        }
+                var badgeClass = ticket.Severity switch
+                {
+                    SeverityEnum.Critical => "bg-danger",
+                    SeverityEnum.High => "bg-warning text-dark",
+                    SeverityEnum.Medium => "bg-info text-dark",
+                    _ => "bg-secondary"
+                };
+                <tr>
+                    <td>@DateTimeOffset.Parse(ticket.DatumVytvorenia).ToString("dd.MM.yyyy")</td>
+                    <td>@ticket.Predmet</td>
+                    <td>@ticket.TicketType</td>
+                    <td><span class="badge @badgeClass">@ticket.Severity</span></td>
+                    <td>@ticket.Status</td>
+                    <td class="d-flex gap-2">
+                        <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@ticket.TicketId">Detail</a>
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@ticket.TicketId">Edit</a>
+                        <form asp-action="Delete" asp-route-ticketId="@ticket.TicketId" method="post">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
-    <h2>Completed tickets</h2>
+}
+
+<h2 class="mt-4">Completed tickets</h2>
+@if (!Model.CompletedTickets.Any())
+{
+    <p class="text-muted">You have no completed tickets.</p>
+}
+else
+{
     <table class="table table-hover align-middle">
         <thead class="table-dark">
-        <tr>
-            <th>Created</th>
-            <th>Subject</th>
-            <th>Type</th>
-            <th>Severity</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
+            <tr>
+                <th>Created</th>
+                <th>Subject</th>
+                <th>Type</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
         </thead>
         <tbody>
-        @foreach (var ticket in Model.CompletedTickets)
-        {
-            var badgeClass = ticket.Severity switch
+            @foreach (var ticket in Model.CompletedTickets)
             {
-                SeverityEnum.Critical => "bg-danger",
-                SeverityEnum.High => "bg-warning text-dark",
-                SeverityEnum.Medium => "bg-info text-dark",
-                _ => "bg-secondary"
-            };
-            <tr>
-                <td>@DateTimeOffset.Parse(ticket.DatumVytvorenia).ToString("dd.MM.yyyy")</td>
-                <td>@ticket.Predmet</td>
-                <td>@ticket.TicketType</td>
-                <td><span class="badge @badgeClass">@ticket.Severity</span></td>
-                <td>@ticket.Status</td>
-                <td class="d-flex gap-2">
-                    <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@ticket.TicketId">Detail</a>
-                </td>
-            </tr>
-        }
+                var badgeClass = ticket.Severity switch
+                {
+                    SeverityEnum.Critical => "bg-danger",
+                    SeverityEnum.High => "bg-warning text-dark",
+                    SeverityEnum.Medium => "bg-info text-dark",
+                    _ => "bg-secondary"
+                };
+                <tr>
+                    <td>@DateTimeOffset.Parse(ticket.DatumVytvorenia).ToString("dd.MM.yyyy")</td>
+                    <td>@ticket.Predmet</td>
+                    <td>@ticket.TicketType</td>
+                    <td><span class="badge @badgeClass">@ticket.Severity</span></td>
+                    <td>@ticket.Status</td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@ticket.TicketId">Detail</a>
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
 }

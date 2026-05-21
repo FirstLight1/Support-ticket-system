@@ -8,7 +8,7 @@
 
 [x] Moznost pridat obrazok k ticketu;
 
-[] Vediet ako admin otvorit ticket details
+[x] Vediet ako admin otvorit ticket details
 
 [x] Admin by mal vediet marknut ticket ako completed
 

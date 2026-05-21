@@ -52,6 +52,12 @@ public class TicketsController : Controller
     [Authorize]
     public async Task<IActionResult> Create(Tickets ticket)
     {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError("", "Invalid ticket");
+            return View(ticket);
+        } 
+        
         var userId = User.GetUserId();
         if (userId == null)
         {
@@ -70,15 +76,18 @@ public class TicketsController : Controller
 
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int? id, string? returnUrl)
     {
         if (id == null) return NotFound();
 
         var userId = User.GetUserId();
         if (userId == null) return Unauthorized();
 
-        var ticket = await _tickets.GetForOwner(id.Value, userId.Value);
+        var ticket = await _tickets.GetForUser(id.Value, userId.Value, User.IsInRole("Admin"));
         if (ticket == null) return NotFound();
+
+        if (ticket.Status == TicketStatusEnum.Completed)
+            return RedirectToAction(nameof(Details), new { id = ticket.TicketId, returnUrl });
 
         var editTicket = new EditTicketModel
         {
@@ -88,14 +97,16 @@ public class TicketsController : Controller
             TicketText = ticket.TicketText,
             TicketType = ticket.TicketType,
             ImagePath = ticket.ImagePath,
+            ReturnUrl = returnUrl
         };
 
+        ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Tickets");
         return View(editTicket);
     }
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Edit(EditTicketModel ticket, int id)
+    public async Task<IActionResult> Edit(EditTicketModel ticket, int id, string? returnUrl)
     {
         var userId = User.GetUserId();
         if (userId == null) return Unauthorized();
@@ -105,41 +116,49 @@ public class TicketsController : Controller
             await TryStoreImage(ticket.Image, path => ticket.ImagePath = path);
         }
 
-        var result = await _tickets.UpdateEditable(id, userId.Value, ticket);
+        var result = await _tickets.UpdateEditable(id, userId.Value, User.IsInRole("Admin"), ticket);
         if (result == TicketActionResult.NotFound)
         {
             ModelState.AddModelError(string.Empty, "Ticket not found");
             return View(ticket);
         }
 
-        return RedirectToAction(nameof(Index));
+        return RedirectBack(returnUrl ?? ticket.ReturnUrl);
     }
 
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> Details(int id)
+    public async Task<IActionResult> Details(int id, string? returnUrl)
     {
         var userId = User.GetUserId();
         if (userId == null) return Unauthorized();
 
-        var ticket = await _tickets.GetForOwner(id, userId.Value);
+        var ticket = await _tickets.GetForUser(id, userId.Value, User.IsInRole("Admin"));
         if (ticket == null) return NotFound();
 
+        ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Tickets");
         return View(ticket);
     }
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Delete(int ticketId)
+    public async Task<IActionResult> Delete(int ticketId, string? returnUrl)
     {
         var userId = User.GetUserId();
         if (userId == null) return Unauthorized();
 
-        var result = await _tickets.Delete(ticketId, userId.Value);
+        var result = await _tickets.Delete(ticketId, userId.Value, User.IsInRole("Admin"));
         if (result == TicketActionResult.NotFound) return NotFound();
 
-        return RedirectToAction(nameof(Index));
+        return RedirectBack(returnUrl);
     }
+
+    // Returns to the supplied URL after a mutation, falling back to the ticket list. Only
+    // local URLs are honored so a crafted returnUrl can't turn this into an open redirect.
+    private IActionResult RedirectBack(string? returnUrl) =>
+        !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)
+            ? Redirect(returnUrl)
+            : RedirectToAction(nameof(Index));
 
     // Image upload validation/storage is still controller-side (see Candidate 2 in the
     // architecture review). On failure it logs and leaves the path unchanged.
