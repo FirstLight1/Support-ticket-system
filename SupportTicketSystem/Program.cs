@@ -34,8 +34,9 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddControllersWithViews();
-        builder.Services.AddDbContext<AppDbContext>(options => 
+        builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Services.AddScoped<TicketAccess>();
 
         var app = builder.Build();
 

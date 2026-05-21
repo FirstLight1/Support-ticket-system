@@ -1,92 +1,51 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SupportTicketSystem.data;
-using SupportTicketSystem.Models;
 using System;
-using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SupportTicketSystem.Controllers;
 
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller
 {
-    private readonly AppDbContext _db;
+    private readonly TicketAccess _tickets;
 
-    public AdminController(AppDbContext db)
+    public AdminController(TicketAccess tickets)
     {
-        _db = db;
+        _tickets = tickets;
     }
 
     // GET /Admin
-    public IActionResult Index(string sortBy = "severity")
+    public async Task<IActionResult> Index(string sortBy = "severity")
     {
-        var query = _db.Tickets
-            .Include(t => t.CreatedBy)
-            .Include(t => t.AssignedTo)
-            .Where(t => t.Status == TicketStatusEnum.Unassigned ||
-                        t.Status == TicketStatusEnum.Inprogress);
-
-        query = sortBy switch
-        {
-            "severity" => query.OrderByDescending(t => t.Severity),
-            "type" => query.OrderByDescending(t => t.TicketType),
-            "date" => query.OrderByDescending(t => t.DatumVytvorenia),
-            _ => query.OrderByDescending(t => t.Severity)
-        };
-
-        var admins = _db.Users.Where(u => u.IsAdmin).ToList();
-
         ViewBag.SortBy = sortBy;
-        return View(new AdminIndexViewModel
-        {
-            Tickets = query.ToList(),
-            Admins = admins
-        });
+        return View(await _tickets.GetAdminIndex(sortBy));
     }
 
     // POST /Admin/Assign
     [HttpPost]
     public async Task<IActionResult> Assign(int ticketId, Guid assignedToUserId)
     {
-        var ticket = await _db.Tickets.FindAsync(ticketId);
-
-        if (ticket == null)
-            return NotFound();
-
-        ticket.AssignedToUserId = assignedToUserId;
-        ticket.Status = TicketStatusEnum.Inprogress;
-
-        try
-        {
-            await _db.SaveChangesAsync();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
+        var result = await _tickets.Assign(ticketId, assignedToUserId);
+        if (result == TicketActionResult.NotFound)
+            TempData["Error"] = "Ticket not found.";
+        else if (result == TicketActionResult.InvalidTransition)
+            TempData["Error"] = "Cannot assign a completed ticket.";
 
         return RedirectToAction(nameof(Index));
     }
-    
+
     // POST /Admin/Complete
+    [HttpPost]
     public async Task<IActionResult> Complete(int ticketId)
     {
-        var ticket = await _db.Tickets.FindAsync(ticketId);
-        if (ticket == null) return NotFound();
+        var result = await _tickets.Complete(ticketId);
+        if (result == TicketActionResult.NotFound)
+            TempData["Error"] = "Ticket not found.";
+        else if (result == TicketActionResult.InvalidTransition)
+            TempData["Error"] = "Ticket is already completed.";
 
-        ticket.Status = TicketStatusEnum.Completed;
-        try
-        {
-            await _db.SaveChangesAsync();
-        }
-        catch(Exception e)
-        {
-            Console.WriteLine(e);
-        }
         return RedirectToAction(nameof(Index));
     }
 }
