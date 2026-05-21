@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"console.log\\(Date.now\\(\\)\\)\")",
+      "Bash(powershell -NoProfile -Command \"[DateTimeOffset]::UtcNow.ToUnixTimeSeconds\\(\\)\")",
+      "Read(//c/c/Users/kamen/RiderProjects/Support-ticket-system/**)",
+      "PowerShell(Start-Process \"C:\\\\Users\\\\kamen\\\\AppData\\\\Local\\\\Temp\\\\architecture-review-1779301978484.html\")",
+      "PowerShell(dotnet build *)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "Bash(rm -f /tmp/ck_peter.txt)",
+      "Bash(curl -k -s -c /tmp/ck_peter.txt -X POST https://localhost:7177/Auth --data-urlencode Email=peter.horvath@example.sk --data-urlencode Password=User123! -o /tmp/peter_login.html -w 'login_http=%{http_code}\\\\n')",
+      "Bash(curl -k -s -b /tmp/ck_peter.txt https://localhost:7177/Tickets -o /tmp/peter_tickets.html -w 'tickets_http=%{http_code}\\\\n')",
+      "Read(//tmp/**)",
+      "Bash(rm -f /tmp/ck_jan.txt)",
+      "Bash(curl -k -s -c /tmp/ck_jan.txt -X POST https://localhost:7177/Auth --data-urlencode Email=jan.novak@example.sk --data-urlencode Password=User123! -o /tmp/jan_login.html -w 'login_http=%{http_code}\\\\n')",
+      "Bash(curl -k -s -b /tmp/ck_jan.txt https://localhost:7177/Tickets -o /tmp/jan_tickets.html -w 'tickets_http=%{http_code}\\\\n')",
+      "Bash(curl -k -s -o /dev/null -w 'no-cookie Details/10 -> %{http_code} \\(redirect: %{redirect_url}\\)\\\\n' https://localhost:7177/Tickets/Details/10)",
+      "Bash(curl -k -s -b /tmp/ck_jan.txt -X POST https://localhost:7177/Tickets/Edit/40 -F TicketId=40 -F 'Predmet=IMG TEST EDITED NO IMAGE' -F 'TicketText=edited without re-uploading' -F TicketType=BugReport -F Severity=Low -o /dev/null -w 'edit_http=%{http_code}\\\\n')",
+      "Bash(curl -k -s -b /tmp/ck_jan.txt https://localhost:7177/Tickets/Edit/40 -o /tmp/jan_edit_40b.html)",
+      "Bash(break)",
+      "Bash(sqlite3 app.db \"SELECT TicketId, Predmet, Status, CreatedByUserId, AssignedToUserId FROM Tickets ORDER BY TicketId;\")",
+      "Bash(cd *)"
+    ]
+  },
+  "enabledPlugins": {
+    "playwright@claude-plugins-official": true
+  }
+}
