@@ -2,12 +2,14 @@ using System;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SupportTicketSystem.data;
 using SupportTicketSystem.Utils;
+
 
 namespace SupportTicketSystem;
 
@@ -16,7 +18,7 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
+
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options =>
             {
@@ -40,6 +42,13 @@ public class Program
 
         var app = builder.Build();
 
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Database.Migrate();
+        }
+
+
         if (args.Contains("--seed"))
         {
             using var seedScope = app.Services.CreateScope();
@@ -49,6 +58,14 @@ public class Program
             Console.WriteLine("Database seeded.");
             return;
         }
+
+        var fwd = new ForwardedHeadersOptions {
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+        };
+        fwd.KnownIPNetworks.Clear(); // cloudflared is on the docker network, not loopback
+        fwd.KnownProxies.Clear();    // safe here: only cloudflared can reach the app (no host port)
+        app.UseForwardedHeaders(fwd);
+
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())

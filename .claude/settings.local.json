@@ -19,7 +19,13 @@
       "Bash(curl -k -s -b /tmp/ck_jan.txt https://localhost:7177/Tickets/Edit/40 -o /tmp/jan_edit_40b.html)",
       "Bash(break)",
       "Bash(sqlite3 app.db \"SELECT TicketId, Predmet, Status, CreatedByUserId, AssignedToUserId FROM Tickets ORDER BY TicketId;\")",
-      "Bash(cd *)"
+      "Bash(cd *)",
+      "Bash(git add *)",
+      "Bash(gh repo *)",
+      "Bash(dotnet build *)",
+      "Bash(dotnet ef *)",
+      "Bash(rm -f /tmp/sts_jar)",
+      "Bash(taskkill //F //IM dotnet.exe)"
     ]
   },
   "enabledPlugins": {
