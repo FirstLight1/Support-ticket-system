@@ -4,13 +4,17 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Serilog;
 
 namespace SupportTicketSystem.Utils;
 
 public class ImageUploadUtil
 {
+    // Instantiated with `new` (not via DI), so use Serilog's static contextual logger.
+    private static readonly ILogger _logger = Log.ForContext<ImageUploadUtil>();
+
     private readonly IWebHostEnvironment _env;
-    
+
     private IFormFile _image;
     private string _fileName;
     string[] _allowedExtensions = { ".jpg", ".jpeg", ".png", ".bmp" };
@@ -84,10 +88,13 @@ public class ImageUploadUtil
                     await image.CopyToAsync(fileStream);
                 }
 
+                _logger.Information("Saved uploaded image {FileName} as {SavedName}", image.FileName, newFileName);
                 return "/Images/" + newFileName;
             }
+            _logger.Warning("Rejected image {FileName}: content does not match a known image signature", image.FileName);
             throw new Exception("Invalid image format");
         }
+        _logger.Warning("Rejected image {FileName}: extension not allowed", image.FileName);
         throw new Exception("Invalid image extension");
     }
 }

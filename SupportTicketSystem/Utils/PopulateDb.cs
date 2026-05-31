@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Serilog;
 using SupportTicketSystem.data;
 using SupportTicketSystem.Models;
 
@@ -18,6 +19,7 @@ public static class PopulateDb
         List<Tickets> tickets = CreateFakeTickets(users);
         db.Tickets.AddRange(tickets);
         db.SaveChanges();
+        Log.Information("Seeded database with {UserCount} users and {TicketCount} tickets", users.Count, tickets.Count);
     }
 
     public static List<UserModel> CreateFakeUsers()

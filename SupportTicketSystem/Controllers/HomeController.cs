@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SupportTicketSystem.data;
 using SupportTicketSystem.Models;
 
@@ -13,10 +14,12 @@ namespace SupportTicketSystem.Controllers;
 public class HomeController : Controller
 {
     private readonly AppDbContext _db;
+    private readonly ILogger<HomeController> _logger;
 
-    public HomeController(AppDbContext db)
+    public HomeController(AppDbContext db, ILogger<HomeController> logger)
     {
         _db = db;
+        _logger = logger;
     }
     public IActionResult Index()
     {
@@ -42,6 +45,7 @@ public class HomeController : Controller
 
         if (Authenticator.FindUser(_db, model.Email) != null)
         {
+            _logger.LogWarning("Registration rejected: email {Email} already exists", model.Email);
             ModelState.AddModelError(string.Empty, "User with this email already exists");
             return View("Register", model);
         }
@@ -60,11 +64,12 @@ public class HomeController : Controller
             _db.Add(User);
             await _db.SaveChangesAsync();
             await Authenticator.SignIn(HttpContext, User);
+            _logger.LogInformation("New user registered: {Email}", User.Email);
             return RedirectToAction("Index", "Home");
         }
         catch (DbUpdateException e)
         {
-            Console.WriteLine(e);
+            _logger.LogError(e, "Failed to register user {Email}", model.Email);
             ModelState.AddModelError(string.Empty, "Registration failed, please try again");
             return View("Register", model);
         }
