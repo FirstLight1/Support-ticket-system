@@ -121,10 +121,10 @@ public class TicketsController : Controller
             TicketType = ticket.TicketType,
             ImagePath = ticket.ImagePath,
             RelatedProject = ticket.RelatedProject,
-            ReturnUrl = returnUrl
+            ReturnUrl = LocalReturnUrl(returnUrl)
         };
 
-        ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Tickets");
+        ViewBag.ReturnUrl = LocalReturnUrl(returnUrl);
         return View(editTicket);
     }
 
@@ -135,7 +135,7 @@ public class TicketsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Tickets");
+            ViewBag.ReturnUrl = LocalReturnUrl(returnUrl);
             return View(ticket);
         }
 
@@ -146,7 +146,7 @@ public class TicketsController : Controller
         {
             if (!await TryStoreImage(ticket.Image, path => ticket.ImagePath = path))
             {
-                ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Tickets");
+                ViewBag.ReturnUrl = LocalReturnUrl(returnUrl);
                 return View(ticket);
             }
         }
@@ -156,7 +156,7 @@ public class TicketsController : Controller
         {
             _logger.LogWarning("Edit failed: ticket {TicketId} not found for user {UserId}", id, userId.Value);
             ModelState.AddModelError(string.Empty, "Ticket not found");
-            ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Tickets");
+            ViewBag.ReturnUrl = LocalReturnUrl(returnUrl);
             return View(ticket);
         }
 
@@ -174,7 +174,7 @@ public class TicketsController : Controller
         var ticket = await _tickets.GetForUser(id, userId.Value, User.IsInRole("Admin"));
         if (ticket == null) return NotFound();
 
-        ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Tickets");
+        ViewBag.ReturnUrl = LocalReturnUrl(returnUrl);
         return View(ticket);
     }
 
@@ -203,6 +203,13 @@ public class TicketsController : Controller
         !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)
             ? Redirect(returnUrl)
             : RedirectToAction(nameof(Index));
+
+    // Sanitizes a returnUrl for rendering in a view's href. A crafted ?returnUrl=https://evil.com
+    // would otherwise render as <a href="https://evil.com"> — an open redirect on click.
+    private string LocalReturnUrl(string? returnUrl) =>
+        !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)
+            ? returnUrl
+            : Url.Action("Index", "Tickets")!;
 
     // Image upload validation/storage is still controller-side (see Candidate 2 in the
     // architecture review). Returns false on any failure (size, format, or IO); the
