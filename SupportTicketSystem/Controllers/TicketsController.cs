@@ -78,7 +78,8 @@ public class TicketsController : Controller
 
         if (ticket.Image != null)
         {
-            await TryStoreImage(ticket.Image, path => ticket.ImagePath = path);
+            if (!await TryStoreImage(ticket.Image, path => ticket.ImagePath = path))
+                return View(ticket);
             _logger.LogInformation("Image stored at {ImagePath} for new ticket", ticket.ImagePath);
         }
 
@@ -128,7 +129,8 @@ public class TicketsController : Controller
 
         if (ticket.Image != null)
         {
-            await TryStoreImage(ticket.Image, path => ticket.ImagePath = path);
+            if (!await TryStoreImage(ticket.Image, path => ticket.ImagePath = path))
+                return View(ticket);
         }
 
         var result = await _tickets.UpdateEditable(id, userId.Value, User.IsInRole("Admin"), ticket);
@@ -184,13 +186,15 @@ public class TicketsController : Controller
             : RedirectToAction(nameof(Index));
 
     // Image upload validation/storage is still controller-side (see Candidate 2 in the
-    // architecture review). On failure it logs and leaves the path unchanged.
-    private async Task TryStoreImage(Microsoft.AspNetCore.Http.IFormFile image, Action<string> setPath)
+    // architecture review). Returns false on any failure (size, format, or IO); the
+    // caller is expected to return the view so the user sees the ModelState error.
+    private async Task<bool> TryStoreImage(Microsoft.AspNetCore.Http.IFormFile image, Action<string> setPath)
     {
         if (image.Length > 1024 * 1024 * 5)
         {
             _logger.LogWarning("Rejected image upload: {Length} bytes exceeds 5 MB limit", image.Length);
-            ModelState.AddModelError(string.Empty, "Image too large");
+            ModelState.AddModelError(string.Empty, "Image too large (max 5 MB).");
+            return false;
         }
 
         var newFileName = Guid.NewGuid().ToString();
@@ -198,10 +202,13 @@ public class TicketsController : Controller
         try
         {
             setPath(await imgUploadUtil.ValidateImage(image));
+            return true;
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Failed to store uploaded image {FileName}", image.FileName);
+            ModelState.AddModelError(string.Empty, "Image could not be uploaded. Check the file is a valid JPEG, PNG, BMP, or GIF.");
+            return false;
         }
     }
 }
