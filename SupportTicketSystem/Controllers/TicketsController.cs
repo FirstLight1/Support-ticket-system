@@ -124,6 +124,12 @@ public class TicketsController : Controller
     [EnableRateLimiting("mutation")]
     public async Task<IActionResult> Edit(EditTicketModel ticket, int id, string? returnUrl)
     {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Tickets");
+            return View(ticket);
+        }
+
         var userId = User.GetUserId();
         if (userId == null) return Unauthorized();
 
