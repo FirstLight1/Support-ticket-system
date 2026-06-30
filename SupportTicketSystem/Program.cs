@@ -138,10 +138,17 @@ public class Program
             builder.Services.Configure<KestrelServerOptions>(o => o.Limits.MaxRequestBodySize = 6 * 1024 * 1024);
 
             var app = builder.Build();
-            using (var scope = app.Services.CreateScope())
+
+            // Explicit migrate-on-deploy. Run `dotnet run -- --migrate` to apply migrations
+            // and exit. Auto-migrating on every boot was removed because it applies schema
+            // changes with no review and is a concurrency hazard if multiple instances start.
+            if (args.Contains("--migrate"))
             {
-                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                using var migrateScope = app.Services.CreateScope();
+                var db = migrateScope.ServiceProvider.GetRequiredService<AppDbContext>();
                 db.Database.Migrate();
+                Log.Information("Database migrated.");
+                return;
             }
 
             if (args.Contains("--seed"))
