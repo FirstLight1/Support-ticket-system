@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -119,8 +120,11 @@ public class Program
                 });
             });
 
-            var app = builder.Build();
+            // Cap request body size at 6 MB — the image upload limit is 5 MB, so this leaves
+            // headroom for the rest of the multipart form without accepting unbounded uploads.
+            builder.Services.Configure<KestrelServerOptions>(o => o.Limits.MaxRequestBodySize = 6 * 1024 * 1024);
 
+            var app = builder.Build();
             using (var scope = app.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
