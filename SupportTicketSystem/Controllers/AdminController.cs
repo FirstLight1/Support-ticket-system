@@ -1,9 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SupportTicketSystem.data;
+using SupportTicketSystem.Models;
+using SupportTicketSystem.Utils;
 using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace SupportTicketSystem.Controllers;
@@ -12,11 +17,13 @@ namespace SupportTicketSystem.Controllers;
 public class AdminController : Controller
 {
     private readonly TicketAccess _tickets;
+    private readonly AppDbContext _db;
     private readonly ILogger<AdminController> _logger;
 
-    public AdminController(TicketAccess tickets, ILogger<AdminController> logger)
+    public AdminController(TicketAccess tickets, AppDbContext db, ILogger<AdminController> logger)
     {
         _tickets = tickets;
+        _db = db;
         _logger = logger;
     }
 
@@ -73,5 +80,66 @@ public class AdminController : Controller
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    // GET /Admin/Users
+    [HttpGet]
+    public async Task<IActionResult> Users()
+    {
+        var users = await _db.Users
+            .OrderByDescending(u => u.IsAdmin)
+            .ThenBy(u => u.Email)
+            .ToListAsync();
+        return View(users);
+    }
+
+    // POST /Admin/ToggleActive
+    [HttpPost]
+    [EnableRateLimiting("mutation")]
+    public async Task<IActionResult> ToggleActive(Guid userId)
+    {
+        var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId.ToString() == currentUserId)
+        {
+            TempData["Error"] = "You cannot disable your own account.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        var user = await _db.Users.FindAsync(userId);
+        if (user == null)
+        {
+            TempData["Error"] = "User not found.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        user.IsActive = !user.IsActive;
+        await _db.SaveChangesAsync();
+        _logger.LogInformation("Admin {AdminId} set user {UserId} IsActive={IsActive}", currentUserId, userId, user.IsActive);
+        return RedirectToAction(nameof(Users));
+    }
+
+    // POST /Admin/ToggleAdmin
+    [HttpPost]
+    [EnableRateLimiting("mutation")]
+    public async Task<IActionResult> ToggleAdmin(Guid userId)
+    {
+        var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId.ToString() == currentUserId)
+        {
+            TempData["Error"] = "You cannot change your own admin role.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        var user = await _db.Users.FindAsync(userId);
+        if (user == null)
+        {
+            TempData["Error"] = "User not found.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        user.IsAdmin = !user.IsAdmin;
+        await _db.SaveChangesAsync();
+        _logger.LogInformation("Admin {AdminId} set user {UserId} IsAdmin={IsAdmin}", currentUserId, userId, user.IsAdmin);
+        return RedirectToAction(nameof(Users));
     }
 }

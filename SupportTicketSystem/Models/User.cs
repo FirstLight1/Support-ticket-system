@@ -24,6 +24,9 @@ namespace SupportTicketSystem.Models
 
         public bool IsAdmin { get; set; }
 
+        // When false the user cannot log in (account disabled by an admin).
+        public bool IsActive { get; set; } = true;
+
         // Account lockout: after LockoutThreshold failed logins (see appsettings Security:Lockout),
         // LockoutEnd blocks further attempts until it elapses. Reset on successful login.
         public int FailedLoginAttempts { get; set; }

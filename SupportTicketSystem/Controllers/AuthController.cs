@@ -53,6 +53,13 @@ public class AuthController : Controller
 
         // Account-level lockout (known email only). Unknown emails are throttled by the
         // per-IP rate limiter and fall through to the timing-equal dummy-hash check below.
+        if (user is { IsActive: false })
+        {
+            _logger.LogWarning("Disabled account {UserId} login attempted", user.Id);
+            ModelState.AddModelError(string.Empty, "This account has been disabled.");
+            return View("Index", model);
+        }
+
         if (user is { LockoutEnd: not null } && user.LockoutEnd > DateTimeOffset.UtcNow)
         {
             _logger.LogWarning("Locked account {UserId} login attempted", user.Id);
