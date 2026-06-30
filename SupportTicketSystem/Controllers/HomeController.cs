@@ -48,7 +48,7 @@ public class HomeController : Controller
 
         if (Authenticator.FindUser(_db, model.Email) != null)
         {
-            _logger.LogWarning("Registration rejected: email {Email} already exists", model.Email);
+            _logger.LogWarning("Registration rejected: email {EmailHash} already exists", PiiHash.Email(model.Email));
             ModelState.AddModelError(string.Empty, "User with this email already exists");
             return View("Register", model);
         }
@@ -67,12 +67,12 @@ public class HomeController : Controller
             _db.Add(User);
             await _db.SaveChangesAsync();
             await Authenticator.SignIn(HttpContext, User);
-            _logger.LogInformation("New user registered: {Email}", User.Email);
+            _logger.LogInformation("New user registered: {UserId}", User.Id);
             return RedirectToAction("Index", "Home");
         }
         catch (DbUpdateException e)
         {
-            _logger.LogError(e, "Failed to register user {Email}", model.Email);
+            _logger.LogError(e, "Failed to register user {EmailHash}", PiiHash.Email(model.Email));
             ModelState.AddModelError(string.Empty, "Registration failed, please try again");
             return View("Register", model);
         }

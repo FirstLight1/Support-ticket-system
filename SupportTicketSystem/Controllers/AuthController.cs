@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using SupportTicketSystem.Utils;
@@ -25,11 +26,13 @@ public class AuthController : Controller
 {
     private readonly AppDbContext _db;
     private readonly ILogger<AuthController> _logger;
+    private readonly AccountLockoutOptions _lockout;
 
-    public AuthController(AppDbContext db, ILogger<AuthController> logger)
+    public AuthController(AppDbContext db, ILogger<AuthController> logger, IConfiguration config)
     {
         _db = db;
         _logger = logger;
+        _lockout = config.GetSection("Security:Lockout").Get<AccountLockoutOptions>() ?? new AccountLockoutOptions();
     }
 
     //GET /auth
@@ -44,32 +47,60 @@ public class AuthController : Controller
     [EnableRateLimiting("login")]
     public async Task<IActionResult> Index(LoginViewModel model)
     {
-        if (!ModelState.IsValid) return View("Index",model);
+        if (!ModelState.IsValid) return View("Index", model);
 
         UserModel? user = Authenticator.FindUser(_db, model.Email);
 
+        // Account-level lockout (known email only). Unknown emails are throttled by the
+        // per-IP rate limiter and fall through to the timing-equal dummy-hash check below.
+        if (user is { LockoutEnd: not null } && user.LockoutEnd > DateTimeOffset.UtcNow)
+        {
+            _logger.LogWarning("Locked account {UserId} login attempted", user.Id);
+            ModelState.AddModelError(string.Empty, "This account is temporarily locked. Try again later.");
+            return View("Index", model);
+        }
+
         if (Authenticator.AuthenticateUser(user, model.Password))
         {
-            await Authenticator.SignIn(HttpContext, user);
-            _logger.LogInformation("User {Email} signed in", user.Email);
+            if (user != null)
+            {
+                user.FailedLoginAttempts = 0;
+                user.LockoutEnd = null;
+                await _db.SaveChangesAsync();
+            }
+            await Authenticator.SignIn(HttpContext, user!);
+            _logger.LogInformation("User {UserId} signed in", user!.Id);
             return RedirectToAction("Index", "Tickets");
         }
-        // user may be null here (unknown email), so log the submitted email, not user.Email.
-        _logger.LogWarning("Failed login attempt for {Email}", model.Email);
+
+        // Failed. Increment counter for known accounts and lock when threshold is reached.
+        if (user != null)
+        {
+            user.FailedLoginAttempts++;
+            if (user.FailedLoginAttempts >= _lockout.MaxFailedAttempts)
+            {
+                user.LockoutEnd = DateTimeOffset.UtcNow.Add(_lockout.LockoutDuration);
+                _logger.LogWarning("User {UserId} locked after {Attempts} failed attempts", user.Id, user.FailedLoginAttempts);
+            }
+            await _db.SaveChangesAsync();
+        }
+
+        // user may be null here (unknown email); log a stable hash, not the raw email.
+        _logger.LogWarning("Failed login attempt for {EmailHash}", PiiHash.Email(model.Email));
         ModelState.AddModelError(string.Empty, "Invalid login attempt");
         return View("Index", model);
     }
 
-    //Untested
-    /// <summary>
-    /// Zrusi Authcokkie pre pouzivatela
-    /// </summary>
-    /// <returns></returns>
+    [HttpGet]
+    public IActionResult AccessDenied() => View();
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        var email = User.Identity?.Name;
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        _logger.LogInformation("User {Email} signed out", email);
+        _logger.LogInformation("User {UserId} signed out", userId);
         return RedirectToAction("Index", "Home");
     }
 }

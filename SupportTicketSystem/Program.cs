@@ -45,11 +45,12 @@ public class Program
                     options.Cookie.HttpOnly = true;
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                     options.Cookie.SameSite = SameSiteMode.Lax;
-                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                    // 14 days, sliding — kept in sync with the ExpiresUtc set at SignInAsync
+                    // (Authenticator.SignIn). One source of truth for cookie lifetime.
+                    options.ExpireTimeSpan = TimeSpan.FromDays(14);
                     options.SlidingExpiration = true;
                     options.LoginPath = "/Auth/";
                     options.LogoutPath = "/Auth/Logout";
-                    //Need to implement this
                     options.AccessDeniedPath = "/Auth/AccessDenied";
                 });
 

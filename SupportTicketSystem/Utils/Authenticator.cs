@@ -41,7 +41,7 @@ public static class Authenticator
         }
         catch(Exception e)
         {
-            Log.Error(e, "Failed to look up user by email {Email}", email);
+            Log.Error(e, "Failed to look up user by email {EmailHash}", PiiHash.Email(email));
             return null;
         }
     }

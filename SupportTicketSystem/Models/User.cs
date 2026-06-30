@@ -23,7 +23,12 @@ namespace SupportTicketSystem.Models
         public required string PasswordHash { get; set; }
 
         public bool IsAdmin { get; set; }
-        
+
+        // Account lockout: after LockoutThreshold failed logins (see appsettings Security:Lockout),
+        // LockoutEnd blocks further attempts until it elapses. Reset on successful login.
+        public int FailedLoginAttempts { get; set; }
+        public DateTimeOffset? LockoutEnd { get; set; }
+
         public ICollection<Tickets> CreatedTickets { get; set; }
         public ICollection<Tickets> AssignedTickets { get; set; }
     }
