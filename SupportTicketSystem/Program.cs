@@ -161,6 +161,29 @@ public class Program
             fwd.KnownProxies.Clear();    // safe here: only cloudflared can reach the app (no host port)
             app.UseForwardedHeaders(fwd);
 
+            // Security response headers. Applied to every response before routing so they
+            // cover errors and static files too. CSP allows the Google Fonts hosts used in
+            // _Layout.cshtml; script-src is 'unsafe-inline' for the small inline <script>
+            // blocks in Auth/Index.cshtml and Tickets/Edit.cshtml (nonces are a future step).
+            app.Use(async (ctx, next) =>
+            {
+                var h = ctx.Response.Headers;
+                h["X-Content-Type-Options"] = "nosniff";
+                h["X-Frame-Options"] = "DENY";
+                h["Referrer-Policy"] = "no-referrer";
+                h["Permissions-Policy"] = "geolocation=(), microphone=(), camera=(), payment=()";
+                h["Content-Security-Policy"] =
+                    "default-src 'self'; " +
+                    "script-src 'self' 'unsafe-inline'; " +
+                    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+                    "font-src 'self' https://fonts.gstatic.com; " +
+                    "img-src 'self' data:; " +
+                    "connect-src 'self'; " +
+                    "base-uri 'self'; " +
+                    "frame-ancestors 'none'";
+                await next();
+            });
+
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
