@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore SupportTicketSystem/SupportTicketSystem.csproj
+
+      - name: Build
+        run: dotnet build SupportTicketSystem/SupportTicketSystem.csproj --no-restore -c Release
+
+      - name: Verify migrations are in sync
+        run: dotnet ef migrations script --no-build --project SupportTicketSystem/SupportTicketSystem.csproj --idempotent --output /dev/null
