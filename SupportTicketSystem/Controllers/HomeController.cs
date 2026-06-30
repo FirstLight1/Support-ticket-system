@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SupportTicketSystem.data;
 using SupportTicketSystem.Models;
+using SupportTicketSystem.Utils;
 
 namespace SupportTicketSystem.Controllers;
 

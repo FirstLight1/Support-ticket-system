@@ -128,12 +128,25 @@ public class Program
 
             if (args.Contains("--seed"))
             {
+                if (app.Environment.IsProduction())
+                {
+                    Log.Error("Refusing to seed the database in {Env} environment", app.Environment.EnvironmentName);
+                    return;
+                }
                 using var seedScope = app.Services.CreateScope();
                 var db = seedScope.ServiceProvider.GetRequiredService<AppDbContext>();
                 db.Database.Migrate();
                 PopulateDb.SeedDb(db);
                 Log.Information("Database seeded.");
                 return;
+            }
+
+            // Idempotent: creates the first admin from BootstrapAdmin:* config if set and no
+            // admin with that email exists yet. No-op when unconfigured or already present.
+            using (var bootstrapScope = app.Services.CreateScope())
+            {
+                var db = bootstrapScope.ServiceProvider.GetRequiredService<AppDbContext>();
+                AdminBootstrapper.EnsureAdmin(db, builder.Configuration);
             }
 
             var fwd = new ForwardedHeadersOptions {
