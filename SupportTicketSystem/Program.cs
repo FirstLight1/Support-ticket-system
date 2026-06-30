@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -66,6 +67,9 @@ public class Program
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddScoped<TicketAccess>();
+
+            builder.Services.AddHealthChecks()
+                .AddDbContextCheck<AppDbContext>("database");
 
             // Persist the Data Protection key ring to disk so auth cookies and antiforgery
             // tokens survive container redeployments. The key directory is configurable via
@@ -222,6 +226,7 @@ public class Program
             app.UseAuthorization();
             app.UseRateLimiter();
             app.UseSerilogRequestLogging();
+            app.MapHealthChecks("/healthz");
             app.MapStaticAssets();
             app.MapControllerRoute(
                     name: "default",
