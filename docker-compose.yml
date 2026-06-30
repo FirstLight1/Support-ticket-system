@@ -1,0 +1,30 @@
+services:
+  app:
+    build:
+      context: ./SupportTicketSystem
+      dockerfile: Dockerfile
+    container_name: support-ticket-system
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Override the connection string to use the volume-mounted db file path.
+      ConnectionStrings__DefaultConnection: "Data Source=/data/app.db"
+      # Bootstrap the first admin on first boot. Set these in a .env file or your
+      # orchestrator's secret store — do not commit real credentials.
+      BootstrapAdmin__Email: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      BootstrapAdmin__Password: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      # Point the Data Protection key ring at the mounted volume.
+      DataProtection__KeyPath: "/keys"
+    volumes:
+      - db_data:/data
+      - keys_data:/app/keys
+      - logs_data:/app/logs
+      - images_data:/app/wwwroot/Images
+
+# Single instance only — SQLite is single-writer. Do not scale this service.
+volumes:
+  db_data:
+  keys_data:
+  logs_data:
+  images_data:

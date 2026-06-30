@@ -17,11 +17,11 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 COPY --from=build /app/publish ./
 
 # Volumes for persistent state (mount these in docker-compose):
-#   /app/app.db         — SQLite database
-#   /app/keys           — Data Protection key ring
-#   /app/logs           — Serilog file sink
+#   /data              — SQLite database (path set via ConnectionStrings env var)
+#   /app/keys          — Data Protection key ring
+#   /app/logs          — Serilog file sink
 #   /app/wwwroot/Images — uploaded images
-VOLUME ["/app/app.db", "/app/keys", "/app/logs", "/app/wwwroot/Images"]
+VOLUME ["/data", "/app/keys", "/app/logs", "/app/wwwroot/Images"]
 
 # Run migrations on container start, then launch the app.
 # --migrate is idempotent (no-op if already up to date) and exits on success,
