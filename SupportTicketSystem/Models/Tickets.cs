@@ -83,6 +83,32 @@ public class EditTicketModel
     public string? ReturnUrl { get; set; }
 }
 
+/// <summary>
+/// Input DTO for ticket creation. Only the fields a user should control are present,
+/// so server-owned fields (Status, CreatedByUserId, DatumVytvorenia, AssignedToUserId,
+/// CompletionNote) can never be over-posted from the request.
+/// </summary>
+public class CreateTicketModel
+{
+    [Required]
+    [MaxLength(100)]
+    public string Predmet { get; set; }
+
+    [Required]
+    public TicketTypeEnum TicketType { get; set; }
+
+    [Required]
+    public string TicketText { get; set; }
+
+    [Required]
+    public SeverityEnum Severity { get; set; }
+
+    public string? RelatedProject { get; set; }
+
+    [NotMapped]
+    public IFormFile? Image { get; set; }
+}
+
 public class TicketsIndexModel
 {
     public List<Tickets> ActiveTickets { get; set; }

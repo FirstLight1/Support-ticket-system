@@ -60,12 +60,12 @@ public class TicketsController : Controller
     [HttpPost]
     [Authorize]
     [EnableRateLimiting("mutation")]
-    public async Task<IActionResult> Create(Tickets ticket)
+    public async Task<IActionResult> Create(CreateTicketModel input)
     {
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("", "Invalid ticket");
-            return View(ticket);
+            return View(input);
         }
 
         var userId = User.GetUserId();
@@ -73,13 +73,22 @@ public class TicketsController : Controller
         {
             ModelState.AddModelError(string.Empty, "Invalid user");
             _logger.LogWarning("User Id not attached");
-            return View(ticket);
+            return View(input);
         }
 
-        if (ticket.Image != null)
+        var ticket = new Tickets
         {
-            if (!await TryStoreImage(ticket.Image, path => ticket.ImagePath = path))
-                return View(ticket);
+            Predmet = input.Predmet,
+            TicketType = input.TicketType,
+            TicketText = input.TicketText,
+            Severity = input.Severity,
+            RelatedProject = input.RelatedProject
+        };
+
+        if (input.Image != null)
+        {
+            if (!await TryStoreImage(input.Image, path => ticket.ImagePath = path))
+                return View(input);
             _logger.LogInformation("Image stored at {ImagePath} for new ticket", ticket.ImagePath);
         }
 
@@ -122,7 +131,7 @@ public class TicketsController : Controller
     [HttpPost]
     [Authorize]
     [EnableRateLimiting("mutation")]
-    public async Task<IActionResult> Edit(EditTicketModel ticket, int id, string? returnUrl)
+    public async Task<IActionResult> Edit([Bind("Predmet,TicketType,TicketText,Severity,RelatedProject,Image")] EditTicketModel ticket, int id, string? returnUrl)
     {
         if (!ModelState.IsValid)
         {
@@ -136,7 +145,10 @@ public class TicketsController : Controller
         if (ticket.Image != null)
         {
             if (!await TryStoreImage(ticket.Image, path => ticket.ImagePath = path))
+            {
+                ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Tickets");
                 return View(ticket);
+            }
         }
 
         var result = await _tickets.UpdateEditable(id, userId.Value, User.IsInRole("Admin"), ticket);
@@ -144,6 +156,7 @@ public class TicketsController : Controller
         {
             _logger.LogWarning("Edit failed: ticket {TicketId} not found for user {UserId}", id, userId.Value);
             ModelState.AddModelError(string.Empty, "Ticket not found");
+            ViewBag.ReturnUrl = returnUrl ?? Url.Action("Index", "Tickets");
             return View(ticket);
         }
 
