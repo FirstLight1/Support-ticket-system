@@ -1,10 +1,12 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -64,6 +66,17 @@ public class Program
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddScoped<TicketAccess>();
+
+            // Persist the Data Protection key ring to disk so auth cookies and antiforgery
+            // tokens survive container redeployments. The key directory is configurable via
+            // DataProtection:KeyPath (default "keys" relative to the content root); in Docker
+            // this path must be a mounted volume.
+            var keyPath = builder.Configuration["DataProtection:KeyPath"] ?? "keys";
+            var keyDir = Path.Combine(builder.Environment.ContentRootPath, keyPath);
+            Directory.CreateDirectory(keyDir);
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(keyDir))
+                .SetApplicationName("SupportTicketSystem");
 
             var rateLimitConfig = builder.Configuration.GetSection("RateLimiting");
             var loginPolicy = rateLimitConfig.GetSection("Login").Get<RateLimitPolicyOptions>() ?? new RateLimitPolicyOptions();
