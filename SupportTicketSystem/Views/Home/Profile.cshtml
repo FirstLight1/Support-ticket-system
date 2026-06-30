@@ -1,0 +1,58 @@
+@model UserModel
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "_Layout";
+}
+
+<h2 class="mb-4">My Profile</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">@Model.Email</dd>
+
+            <dt class="col-sm-3">Role</dt>
+            <dd class="col-sm-9">@(Model.IsAdmin ? "Admin" : "User")</dd>
+
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">@(Model.IsActive ? "Active" : "Disabled")</dd>
+
+            <dt class="col-sm-3">Tickets created</dt>
+            <dd class="col-sm-9">@ViewBag.TicketCount</dd>
+        </dl>
+    </div>
+</div>
+
+<h3>GDPR data rights</h3>
+<p>Download a JSON copy of your account data and all tickets you created, or permanently delete your account and all associated tickets.</p>
+
+<div class="d-flex gap-2 flex-wrap">
+    <a asp-action="ExportMyData" class="btn btn-outline-primary">Export my data (JSON)</a>
+
+    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+        Delete my account
+    </button>
+</div>
+
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="DeleteAccount" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">Delete account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>This will <strong>permanently delete</strong> your account and all <strong>@ViewBag.TicketCount tickets</strong> you created.</p>
+                    <p>Tickets assigned to you as admin will be unassigned but kept.</p>
+                    <p>This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Yes, delete everything</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
