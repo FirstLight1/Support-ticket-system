@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -117,6 +118,7 @@ public class AuthController : Controller
 
     //POST /auth
     [HttpPost]
+    [EnableRateLimiting("login")]
     public async Task<IActionResult> Index(LoginViewModel model)
     {
         if (!ModelState.IsValid) return View("Index",model);

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SupportTicketSystem.data;
 using SupportTicketSystem.Models;
 using System;
@@ -58,6 +59,7 @@ public class TicketsController : Controller
 
     [HttpPost]
     [Authorize]
+    [EnableRateLimiting("mutation")]
     public async Task<IActionResult> Create(Tickets ticket)
     {
         if (!ModelState.IsValid)
@@ -118,6 +120,7 @@ public class TicketsController : Controller
 
     [HttpPost]
     [Authorize]
+    [EnableRateLimiting("mutation")]
     public async Task<IActionResult> Edit(EditTicketModel ticket, int id, string? returnUrl)
     {
         var userId = User.GetUserId();
@@ -156,6 +159,7 @@ public class TicketsController : Controller
 
     [HttpPost]
     [Authorize]
+    [EnableRateLimiting("mutation")]
     public async Task<IActionResult> Delete(int ticketId, string? returnUrl)
     {
         var userId = User.GetUserId();

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
 using SupportTicketSystem.data;
 using System;
@@ -28,6 +29,7 @@ public class AdminController : Controller
 
     // POST /Admin/Assign
     [HttpPost]
+    [EnableRateLimiting("mutation")]
     public async Task<IActionResult> Assign(int ticketId, Guid assignedToUserId)
     {
         var result = await _tickets.Assign(ticketId, assignedToUserId);
@@ -51,6 +53,7 @@ public class AdminController : Controller
 
     // POST /Admin/Complete
     [HttpPost]
+    [EnableRateLimiting("mutation")]
     public async Task<IActionResult> Complete(int ticketId, string? completionNote)
     {
         var result = await _tickets.Complete(ticketId, completionNote);

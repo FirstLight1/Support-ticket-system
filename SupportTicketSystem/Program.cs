@@ -1,10 +1,14 @@
 using System;
 using System.Linq;
+using System.Security.Claims;
+using System.Threading.RateLimiting;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,6 +63,61 @@ public class Program
                 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddScoped<TicketAccess>();
 
+            var rateLimitConfig = builder.Configuration.GetSection("RateLimiting");
+            var loginPolicy = rateLimitConfig.GetSection("Login").Get<RateLimitPolicyOptions>() ?? new RateLimitPolicyOptions();
+            var registerPolicy = rateLimitConfig.GetSection("Register").Get<RateLimitPolicyOptions>() ?? new RateLimitPolicyOptions();
+            var mutationPolicy = rateLimitConfig.GetSection("Mutation").Get<RateLimitPolicyOptions>() ?? new RateLimitPolicyOptions();
+
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.OnRejected = (context, _) =>
+                {
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter) && retryAfter is TimeSpan retry)
+                    {
+                        context.HttpContext.Response.Headers["Retry-After"] = ((int)Math.Ceiling(retry.TotalSeconds)).ToString();
+                    }
+                    return ValueTask.CompletedTask;
+                };
+
+                options.AddPolicy("login", httpContext =>
+                {
+                    var key = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                    return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = loginPolicy.PermitLimit,
+                        Window = loginPolicy.Window,
+                        AutoReplenishment = true,
+                        QueueLimit = 0
+                    });
+                });
+
+                options.AddPolicy("register", httpContext =>
+                {
+                    var key = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                    return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = registerPolicy.PermitLimit,
+                        Window = registerPolicy.Window,
+                        AutoReplenishment = true,
+                        QueueLimit = 0
+                    });
+                });
+
+                options.AddPolicy("mutation", httpContext =>
+                {
+                    var userId = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    var key = !string.IsNullOrEmpty(userId) ? userId : (httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+                    return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = mutationPolicy.PermitLimit,
+                        Window = mutationPolicy.Window,
+                        AutoReplenishment = true,
+                        QueueLimit = 0
+                    });
+                });
+            });
+
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())
@@ -97,6 +156,7 @@ public class Program
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseRateLimiter();
             app.UseSerilogRequestLogging();
             app.MapStaticAssets();
             app.MapControllerRoute(

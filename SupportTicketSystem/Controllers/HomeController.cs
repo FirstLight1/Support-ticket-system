@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SupportTicketSystem.data;
@@ -38,6 +39,7 @@ public class HomeController : Controller
     }
 
     [HttpPost]
+    [EnableRateLimiting("register")]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
 
