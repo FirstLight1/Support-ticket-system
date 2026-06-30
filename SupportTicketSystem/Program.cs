@@ -207,6 +207,9 @@ public class Program
             }
 
             app.UseHttpsRedirection();
+            // UseStaticFiles serves runtime-uploaded images from wwwroot/Images/. MapStaticAssets
+            // only serves build-time-bundled assets, so without this uploaded images would 404.
+            app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
