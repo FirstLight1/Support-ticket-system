@@ -1,6 +1,41 @@
 @{
     ViewData["Title"] = "Privacy Policy";
 }
+
 <h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<h2>1. Who we are</h2>
+<p>SupportTicketSystem is operated by the maintainers listed in the site footer. This policy explains what personal data we collect and how we use it.</p>
+
+<h2>2. Data we collect</h2>
+<ul>
+    <li><strong>Email address</strong> — used as your account identifier and login.</li>
+    <li><strong>Password</strong> — stored as a salted hash (never in plain text).</li>
+    <li><strong>Ticket content</strong> — subject, description, severity, type, and any images you upload.</li>
+    <li><strong>Account activity</strong> — failed login attempts and lockout state.</li>
+    <li><strong>Server logs</strong> — email addresses are hashed in logs; request metadata (IP, timestamps) is logged for security and troubleshooting.</li>
+</ul>
+
+<h2>3. How we use your data</h2>
+<ul>
+    <li>To authenticate you and manage your account.</li>
+    <li>To process and track support tickets you submit.</li>
+    <li>To protect the service from abuse (rate limiting, account lockout, security logging).</li>
+</ul>
+
+<h2>4. Data retention</h2>
+<p>Your account and ticket data are retained until you delete your account. Server logs are retained for up to 14 days.</p>
+
+<h2>5. Your rights (GDPR)</h2>
+<ul>
+    <li><strong>Access / export</strong> — you can export all data associated with your account from your profile page.</li>
+    <li><strong>Erasure</strong> — you can permanently delete your account and all associated tickets from your profile page. This action is irreversible.</li>
+    <li><strong>Rectification</strong> — you can edit your ticket content at any time before it is completed.</li>
+</ul>
+
+<h2>6. Security</h2>
+<p>Passwords are hashed with ASP.NET Core's PasswordHasher. Authentication uses signed cookies over HTTPS. Data Protection keys are persisted to a volume to survive deployments. Uploads are validated by extension and magic-byte signature with a 5 MB size cap.</p>
+
+<h2>7. Contact</h2>
+<p>To exercise your data rights or ask questions about this policy, contact the site maintainers.</p>
+
