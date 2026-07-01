@@ -45,3 +45,6 @@ logs/
 keys/
 
 wwwroot/Images/
+
+# Docker Compose local env (secrets — BootstrapAdmin credentials, etc.)
+.env
