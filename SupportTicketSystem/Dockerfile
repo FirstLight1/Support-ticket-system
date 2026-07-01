@@ -9,12 +9,22 @@ RUN dotnet publish -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
-EXPOSE 8080
+EXPOSE 400
 
-ENV ASPNETCORE_HTTP_PORTS=8080
+ENV ASPNETCORE_HTTP_PORTS=400
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 COPY --from=build /app/publish ./
+
+# Pre-create writable dirs and give them to the non-root app user so named
+# volumes inherit writable ownership on first creation. The aspnet image sets
+# APP_UID (1654); without this, Docker creates these root-owned and the non-root
+# app user can't write SQLite WAL to /data, keys to /app/keys, logs to /app/logs,
+# or uploads to /app/wwwroot/Images.
+USER root
+RUN mkdir -p /data /app/keys /app/logs /app/wwwroot/Images \
+    && chown -R $APP_UID:$APP_UID /data /app/keys /app/logs /app/wwwroot/Images
+USER $APP_UID
 
 # Volumes for persistent state (mount these in docker-compose):
 #   /data              — SQLite database (path set via ConnectionStrings env var)

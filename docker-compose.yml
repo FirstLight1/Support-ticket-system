@@ -5,8 +5,10 @@ services:
       dockerfile: Dockerfile
     container_name: support-ticket-system
     restart: unless-stopped
+    # Bind to loopback only: cloudflared (running as a host systemd service)
+    # reaches the app at http://localhost:8080, but nothing on the LAN can.
     ports:
-      - "8080:8080"
+      - "127.0.0.1:400:400"
     environment:
       # Override the connection string to use the volume-mounted db file path.
       ConnectionStrings__DefaultConnection: "Data Source=/data/app.db"
@@ -14,8 +16,10 @@ services:
       # orchestrator's secret store — do not commit real credentials.
       BootstrapAdmin__Email: ${BOOTSTRAP_ADMIN_EMAIL:-}
       BootstrapAdmin__Password: ${BOOTSTRAP_ADMIN_PASSWORD:-}
-      # Point the Data Protection key ring at the mounted volume.
-      DataProtection__KeyPath: "/keys"
+      # Data Protection key ring. MUST be a relative path — Program.cs combines
+      # it with the content root (/app), so an absolute value like "/keys" would
+      # escape the mounted volume and break cookie/antiforgery persistence.
+      DataProtection__KeyPath: "keys"
     volumes:
       - db_data:/data
       - keys_data:/app/keys
